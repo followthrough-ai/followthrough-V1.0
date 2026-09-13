@@ -111,7 +111,9 @@ h1 { font-size: clamp(2.6rem, 6.2vw, 4.9rem); line-height: 1; letter-spacing: -.
 h1 em { font-style: normal; color: var(--signal); text-shadow: 0 0 32px rgba(46, 230, 255, .45); }
 .hero-side p { margin: 0 0 24px; font-size: 1.14rem; color: var(--haze); max-width: 44ch; }
 .hero-side strong { color: var(--ink); font-weight: 500; }
-.fine { margin: 16px 0 0; font: .76rem var(--mono); color: var(--dim); }
+.hero-side .fine { margin: 16px 0 0; font: .76rem/1.6 var(--mono); color: var(--dim); max-width: 52ch; }
+.fine a { color: var(--haze); text-underline-offset: 3px; }
+.fine a:hover { color: var(--signal); }
 
 .values { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 56px; border-block: 1px solid var(--line); }
 .value { display: flex; gap: 14px; padding: 22px 24px; }
@@ -363,10 +365,10 @@ footer { margin-top: clamp(72px, 10vw, 128px); padding-block: 56px 40px; border-
         <div class="hero-side">
           <p>Followthrough reads your Granola meeting, finds what people committed to, and completes it: <strong>the email, the calendar invite, the Slack update, the deal stage.</strong> Exactly once, and only in the apps you allow.</p>
           <div class="cta-row">
-            <a class="btn primary" href="https://github.com/followthrough-ai/followthrough-V1.0/blob/main/extension/README.md">Install the extension</a>
+            <a class="btn primary" href="downloads/followthrough-extension.zip" download="followthrough-extension.zip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Install the extension</a>
             <a class="btn" href="https://github.com/followthrough-ai/followthrough-V1.0"><svg aria-hidden="true"><use href="#gh"/></svg>View source</a>
           </div>
-          <p class="fine">Chrome &amp; Edge · runs on your computer · Python 3.10+</p>
+          <p class="fine">Downloads a .zip · unzip, then Load unpacked in Chrome or Edge · needs the local engine (<a href="https://github.com/followthrough-ai/followthrough-V1.0/blob/main/extension/README.md">setup guide</a>)</p>
         </div>
       </div>
 
@@ -739,7 +741,7 @@ footer { margin-top: clamp(72px, 10vw, 128px); padding-block: 56px 40px; border-
           <h2>Bring your keys. Keep your data.</h2>
           <p class="lede">MIT licensed. Run it on your own machine with your own accounts, and read every line it runs.</p>
           <div class="cta-row">
-            <a class="btn primary" href="https://github.com/followthrough-ai/followthrough-V1.0/blob/main/extension/README.md">Install the extension</a>
+            <a class="btn primary" href="downloads/followthrough-extension.zip" download="followthrough-extension.zip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Install the extension</a>
             <a class="btn" href="https://github.com/followthrough-ai/followthrough-V1.0/blob/main/docs/ARCHITECTURE.md">Read the architecture</a>
           </div>
         </div>
@@ -808,7 +810,8 @@ python run.py engine</pre>
       <div>
         <h4>Docs</h4>
         <ul>
-          <li><a href="https://github.com/followthrough-ai/followthrough-V1.0/blob/main/extension/README.md">Install the extension</a></li>
+          <li><a href="downloads/followthrough-extension.zip" download="followthrough-extension.zip">Download the extension</a></li>
+          <li><a href="https://github.com/followthrough-ai/followthrough-V1.0/blob/main/extension/README.md">Extension setup guide</a></li>
           <li><a href="https://github.com/followthrough-ai/followthrough-V1.0/blob/main/docs/PRD.md">Product requirements</a></li>
           <li><a href="https://github.com/followthrough-ai/followthrough-V1.0/blob/main/docs/ARCHITECTURE.md">Architecture</a></li>
           <li><a href="https://github.com/followthrough-ai/followthrough-V1.0/blob/main/docs/RELIABILITY_BRIEF.md">Reliability brief</a></li>
