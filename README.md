@@ -595,4 +595,4 @@ Full requirements, metrics and risks: [`docs/PRD.md`](docs/PRD.md).
 
 ## License
 
-No license has been chosen yet. Add a `LICENSE` file before publishing or accepting contributions.
+Released under the [MIT License](LICENSE). Copyright (c) 2026 followthrough-ai.
