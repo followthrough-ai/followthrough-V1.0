@@ -11,31 +11,40 @@
 ![Tests](https://img.shields.io/badge/invariant%20tests-6%2F6-3ef5a8?style=flat-square)
 ![Status](https://img.shields.io/badge/status-hackathon%20MVP-ffc75e?style=flat-square)
 
-[Overview](#overview) · [Live demo in 10 minutes](#live-demo-in-10-minutes) · [Architecture](#architecture) · [Reliability](#reliability-guarantees) · [Configuration](#configuration-reference) · [PRD](docs/PRD.md) · [Architecture deep dive](docs/ARCHITECTURE.md)
+[**Live site**](https://followthrough-ai.github.io/followthrough-V1.0/) · [Overview](#overview) · [Live demo in 10 minutes](#live-demo-in-10-minutes) · [Architecture](#architecture) · [Reliability](#reliability-guarantees) · [Configuration](#configuration-reference) · [PRD](docs/PRD.md) · [Architecture deep dive](docs/ARCHITECTURE.md)
 
 </div>
 
 ---
 
+## Product is live
+
+**[followthrough-ai.github.io/followthrough-V1.0](https://followthrough-ai.github.io/followthrough-V1.0/)**
+
+The Followthrough launch site shows the product end to end: a real call transcript turned into a sent email, a booked meeting, a Slack post and an Airtable update, plus how autopilot works, the benchmark results, safety features, integrations and install steps.
+
+---
+
 ## Table of contents
 
-1. [Overview](#overview)
-2. [Key capabilities](#key-capabilities)
-3. [Architecture](#architecture)
-4. [How a live run works](#how-a-live-run-works)
-5. [Reliability guarantees](#reliability-guarantees)
-6. [Live demo in 10 minutes](#live-demo-in-10-minutes)
-7. [Connecting your accounts](#connecting-your-accounts)
-8. [Using Followthrough](#using-followthrough)
-9. [Benchmark and evaluation](#benchmark-and-evaluation)
-10. [Web API reference](#web-api-reference)
-11. [Configuration reference](#configuration-reference)
-12. [Security and privacy](#security-and-privacy)
-13. [Observability](#observability)
-14. [Project structure](#project-structure)
-15. [Troubleshooting](#troubleshooting)
-16. [Roadmap](#roadmap)
-17. [Documentation](#documentation)
+1. [Product is live](#product-is-live)
+2. [Overview](#overview)
+3. [Key capabilities](#key-capabilities)
+4. [Architecture](#architecture)
+5. [How a live run works](#how-a-live-run-works)
+6. [Reliability guarantees](#reliability-guarantees)
+7. [Live demo in 10 minutes](#live-demo-in-10-minutes)
+8. [Connecting your accounts](#connecting-your-accounts)
+9. [Using Followthrough](#using-followthrough)
+10. [Benchmark and evaluation](#benchmark-and-evaluation)
+11. [Web API reference](#web-api-reference)
+12. [Configuration reference](#configuration-reference)
+13. [Security and privacy](#security-and-privacy)
+14. [Observability](#observability)
+15. [Project structure](#project-structure)
+16. [Troubleshooting](#troubleshooting)
+17. [Roadmap](#roadmap)
+18. [Documentation](#documentation)
 
 ---
 
