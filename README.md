@@ -1,6 +1,6 @@
 <div align="center">
 
-# ◆ Followthrough
+<img src="docs/assets/followthrough-logo.svg" alt="Followthrough" width="360">
 
 **Turn every meeting commitment into completed, verified work - across Gmail, Google Calendar, Slack and Airtable.**
 

@@ -1,0 +1,899 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Followthrough</title>
+<meta name="description" content="Followthrough reads your Granola meeting and completes every commitment: the email, the calendar invite, the Slack update, the deal stage. Exactly once, only in the apps you allow.">
+<meta property="og:title" content="Followthrough">
+<meta property="og:description" content="Every promise from the call, done before the next one.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#03050b">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2303050b'/%3E%3Cpath d='M16 3 27 9.5v13L16 29 5 22.5v-13z' fill='none' stroke='%232ee6ff' stroke-width='2'/%3E%3Cpath d='m10.5 16.5 3.8 3.8 7.2-8' fill='none' stroke='%232ee6ff' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap">
+<style>
+:root {
+  --void: #03050b;
+  --panel: #08101f;
+  --line: rgba(120, 190, 255, .12);
+  --line-2: rgba(120, 190, 255, .24);
+  --ink: #e8f1ff;
+  --haze: #94a6c6;
+  --dim: #5f7298;
+  --signal: #2ee6ff;
+  --violet: #9f7dff;
+  --done: #3ef5a8;
+  --ask: #ffc75e;
+  --skip: #b48dff;
+  --gmail: #ff6f91;
+  --calendar: #2ee6ff;
+  --slack: #b48dff;
+  --airtable: #ffc75e;
+  --granola: #3ef5a8;
+  --groq: #ff8a4c;
+  --contacts: #7fb2ff;
+  --sans: "Space Grotesk", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "Cascadia Code", Consolas, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+body { margin: 0; background: var(--void); color: var(--ink); font: 400 1rem/1.6 var(--sans); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+img, svg { max-width: 100%; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--signal); outline-offset: 3px; border-radius: 4px; }
+.wrap { max-width: 1160px; margin-inline: auto; padding-inline: clamp(16px, 4vw, 40px); }
+
+.sky { position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(900px 520px at 80% -10%, rgba(46, 230, 255, .10), transparent 60%),
+              radial-gradient(700px 480px at -5% 30%, rgba(159, 125, 255, .07), transparent 60%); }
+.sky::after { content: ""; position: absolute; inset: 0; opacity: .35;
+  background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size: 56px 56px;
+  -webkit-mask-image: linear-gradient(to bottom, #000, transparent 65%); mask-image: linear-gradient(to bottom, #000, transparent 65%); }
+
+/* nav */
+.nav { position: sticky; top: 0; z-index: 20; background: rgba(3, 5, 11, .74); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-bottom: 1px solid var(--line); }
+.nav .wrap { display: flex; align-items: center; gap: 24px; height: 64px; }
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.brand svg { width: 28px; height: 28px; filter: drop-shadow(0 0 8px rgba(46, 230, 255, .5)); }
+.wordmark { font-weight: 700; letter-spacing: .22em; font-size: .88rem; }
+.wordmark span { background: linear-gradient(90deg, var(--signal), var(--violet)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.nav-links { display: flex; gap: 2px; list-style: none; padding: 0; margin: 0 auto; }
+.nav-links a { display: block; padding: 8px 12px; border-radius: 8px; text-decoration: none; color: var(--haze); font-size: .9rem; }
+.nav-links a:hover { color: var(--ink); background: rgba(120, 190, 255, .07); }
+
+/* buttons */
+.btn { display: inline-flex; align-items: center; gap: 9px; height: 46px; padding-inline: 20px; border-radius: 10px; font: 600 .95rem var(--sans); text-decoration: none; white-space: nowrap; cursor: pointer;
+  border: 1px solid var(--line-2); color: var(--ink); background: rgba(120, 190, 255, .04); transition: border-color .2s, background .2s, box-shadow .2s; }
+.btn:hover { border-color: var(--signal); background: rgba(46, 230, 255, .08); }
+.btn svg { width: 18px; height: 18px; }
+.btn.primary { border: 0; color: #02040a; background: linear-gradient(90deg, var(--signal), var(--violet)); box-shadow: 0 0 24px rgba(46, 230, 255, .25); }
+.btn.primary:hover { box-shadow: 0 0 36px rgba(46, 230, 255, .45); }
+.btn.sm { height: 38px; padding-inline: 14px; font-size: .86rem; }
+.cta-row { display: flex; flex-wrap: wrap; gap: 12px; }
+
+/* shared type */
+.eyebrow { margin: 0 0 14px; font: 500 .74rem var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--signal); }
+h1, h2, h3, h4 { margin: 0; text-wrap: balance; }
+h2 { font-size: clamp(2rem, 4vw, 3.1rem); line-height: 1.05; letter-spacing: -.035em; font-weight: 600; max-width: 20ch; }
+.lede { margin: 16px 0 0; color: var(--haze); font-size: 1.1rem; max-width: 56ch; }
+.sec-head { margin-bottom: 44px; }
+.section { padding-block: clamp(72px, 10vw, 128px) 0; }
+
+/* chips shared by mockups */
+.app { display: inline-flex; align-items: center; gap: 7px; font: 500 .76rem var(--mono); color: var(--ink); }
+.app::before { content: ""; width: 8px; height: 8px; border-radius: 2px; background: var(--c); box-shadow: 0 0 10px var(--c); }
+[data-app="gmail"] { --c: var(--gmail); }
+[data-app="calendar"] { --c: var(--calendar); }
+[data-app="slack"] { --c: var(--slack); }
+[data-app="airtable"] { --c: var(--airtable); }
+[data-app="granola"] { --c: var(--granola); }
+[data-app="groq"] { --c: var(--groq); }
+[data-app="contacts"] { --c: var(--contacts); }
+[data-app="none"] { --c: var(--dim); }
+.status { display: inline-block; font: 500 .66rem/1.5 var(--mono); letter-spacing: .08em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; border: 1px solid; white-space: nowrap; }
+.status.ok { color: var(--done); border-color: rgba(62, 245, 168, .4); background: rgba(62, 245, 168, .08); }
+.status.dup { color: var(--skip); border-color: rgba(180, 141, 255, .4); background: rgba(180, 141, 255, .08); }
+.status.ign { color: var(--haze); border-color: var(--line-2); }
+.status.ask { color: var(--ask); border-color: rgba(255, 199, 94, .4); background: rgba(255, 199, 94, .08); }
+.meta { font: .74rem/1.5 var(--mono); color: var(--dim); overflow-wrap: anywhere; }
+
+/* hero */
+.hero { padding-block: clamp(56px, 9vw, 108px) 0; }
+.hero-grid { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: clamp(24px, 5vw, 72px); align-items: end; }
+.tag { display: inline-flex; gap: 10px; align-items: center; margin-bottom: 28px; padding: 5px 12px 5px 6px; border: 1px solid var(--line-2); border-radius: 999px; font: 500 .74rem var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--haze); }
+.tag b { color: #02040a; background: var(--signal); border-radius: 999px; padding: 1px 8px; font-weight: 500; }
+h1 { font-size: clamp(2.6rem, 6.2vw, 4.9rem); line-height: 1; letter-spacing: -.045em; font-weight: 600; }
+h1 em { font-style: normal; color: var(--signal); text-shadow: 0 0 32px rgba(46, 230, 255, .45); }
+.hero-side p { margin: 0 0 24px; font-size: 1.14rem; color: var(--haze); max-width: 44ch; }
+.hero-side strong { color: var(--ink); font-weight: 500; }
+.fine { margin: 16px 0 0; font: .76rem var(--mono); color: var(--dim); }
+
+.values { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 56px; border-block: 1px solid var(--line); }
+.value { display: flex; gap: 14px; padding: 22px 24px; }
+.value:first-child { padding-left: 0; }
+.value + .value { border-left: 1px solid var(--line); }
+.value svg { flex: none; width: 22px; height: 22px; margin-top: 2px; color: var(--signal); }
+.value p { margin: 0; color: var(--haze); font-size: .95rem; line-height: 1.5; }
+.value b { display: block; color: var(--ink); font-weight: 500; font-size: 1rem; }
+
+/* hero machine */
+.machine { margin-top: 40px; border: 1px solid var(--line-2); border-radius: 18px; overflow: hidden;
+  background: linear-gradient(180deg, rgba(13, 23, 44, .92), rgba(8, 16, 31, .92));
+  box-shadow: 0 50px 120px -50px rgba(46, 230, 255, .3), inset 0 1px 0 rgba(255, 255, 255, .04); }
+.m-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 14px 20px; border-bottom: 1px solid var(--line); }
+.m-head b { font-weight: 600; }
+.m-tally { display: flex; flex-wrap: wrap; gap: 6px; margin-left: auto; }
+.m-body { display: grid; grid-template-columns: minmax(0, 1.12fr) minmax(0, 1fr); }
+.col-label { margin: 0 0 10px 12px; font: 500 .68rem var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--dim); }
+.transcript { padding: 18px 8px 18px 8px; border-right: 1px solid var(--line); }
+.t-line { display: grid; grid-template-columns: 46px minmax(0, 1fr); gap: 6px; padding: 5px 12px; border-radius: 8px; font-size: .9rem; line-height: 1.5; color: var(--haze); transition: background .35s; }
+.who { font: 500 .72rem/1.95 var(--mono); color: var(--dim); }
+.said { color: var(--ink); background-image: linear-gradient(var(--c), var(--c)); background-size: 100% 1px; background-position: 0 100%; background-repeat: no-repeat; cursor: default; }
+.said.hedge { color: var(--haze); font-style: italic; }
+.t-line.live { background: color-mix(in srgb, var(--c) 11%, transparent); }
+.receipts { display: flex; flex-direction: column; gap: 8px; padding: 18px 20px; }
+.rcpt { padding: 11px 14px; border: 1px solid var(--line); border-radius: 10px; background: rgba(3, 5, 11, .55); transition: border-color .35s, box-shadow .35s, transform .35s; }
+.rcpt.live { border-color: color-mix(in srgb, var(--c) 70%, transparent); box-shadow: 0 0 0 1px color-mix(in srgb, var(--c) 30%, transparent), 0 0 28px -6px color-mix(in srgb, var(--c) 50%, transparent); transform: translateX(-3px); }
+.r-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.r-what { margin: 5px 0 1px; font-size: .95rem; font-weight: 500; }
+
+/* ticker */
+.ticker { margin-top: 72px; padding-block: 18px; overflow: hidden; border-block: 1px solid var(--line);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
+.ticker-track { display: flex; width: max-content; animation: tick 56s linear infinite; }
+.ticker:hover .ticker-track { animation-play-state: paused; }
+.tk-group { display: flex; gap: 44px; padding-right: 44px; }
+.tk { display: flex; align-items: center; gap: 12px; white-space: nowrap; color: var(--haze); font-size: .95rem; }
+.tk q { color: var(--ink); }
+.tk .arrow { color: var(--dim); font-family: var(--mono); }
+@keyframes tick { to { transform: translateX(-50%); } }
+
+/* tabs */
+.tabs { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: clamp(24px, 5vw, 64px); align-items: start; }
+.tablist { display: flex; flex-direction: column; border-left: 1px solid var(--line); }
+.tab { display: block; width: 100%; margin-left: -1px; padding: 18px 0 18px 24px; border: 0; border-left: 2px solid transparent; background: none; color: var(--haze); font: inherit; text-align: left; cursor: pointer; }
+.tab .when { display: block; font: 500 .72rem var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--dim); }
+.tab .t { display: block; margin-top: 4px; font-size: 1.35rem; font-weight: 500; letter-spacing: -.02em; color: var(--haze); transition: color .2s; }
+.tab .d { display: none; margin-top: 8px; font-size: .98rem; line-height: 1.55; max-width: 46ch; }
+.tab:hover .t { color: var(--ink); }
+.tab[aria-selected="true"] { border-left-color: var(--signal); }
+.tab[aria-selected="true"] .when { color: var(--signal); }
+.tab[aria-selected="true"] .t { color: var(--ink); }
+.tab[aria-selected="true"] .d { display: block; }
+.stage { min-height: 440px; padding: clamp(18px, 3vw, 32px); border: 1px solid var(--line-2); border-radius: 18px; background: var(--panel); }
+.stage-panel { display: flex; flex-direction: column; gap: 14px; }
+
+.card { padding: 18px; border: 1px solid var(--line); border-radius: 12px; background: rgba(3, 5, 11, .55); }
+.card h4 { margin: 10px 0 2px; font-size: 1.15rem; font-weight: 500; letter-spacing: -.01em; }
+.card ul { margin: 14px 0 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.card li { display: flex; gap: 10px; color: var(--haze); font-size: .92rem; line-height: 1.45; }
+.card li::before { content: ""; flex: none; width: 5px; height: 5px; margin-top: .55em; border-radius: 50%; background: var(--dim); }
+.watch { display: flex; align-items: center; gap: 10px; font: .76rem var(--mono); color: var(--haze); }
+.pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--done); box-shadow: 0 0 0 0 rgba(62, 245, 168, .6); animation: pulse 2s ease-out infinite; }
+@keyframes pulse { 70% { box-shadow: 0 0 0 10px rgba(62, 245, 168, 0); } 100% { box-shadow: 0 0 0 0 rgba(62, 245, 168, 0); } }
+
+.pipe { display: grid; gap: 10px; }
+.pipe-row { display: grid; grid-template-columns: 84px minmax(0, 1fr); gap: 14px; align-items: start; padding: 14px 16px; border: 1px solid var(--line); border-radius: 12px; background: rgba(3, 5, 11, .55); }
+.pipe-row .step { font: 500 .72rem/1.9 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--signal); }
+.pipe-row p { margin: 0; font-size: .94rem; }
+.pipe-row .meta { margin-top: 3px; }
+
+.notif { display: flex; gap: 14px; align-items: flex-start; padding: 16px; border: 1px solid var(--line-2); border-radius: 14px; background: #0d1629; box-shadow: 0 20px 50px -20px rgba(0, 0, 0, .8); }
+.notif svg { flex: none; width: 34px; height: 34px; }
+.notif b { display: block; font-weight: 500; }
+.notif p { margin: 2px 0 0; color: var(--haze); font-size: .9rem; line-height: 1.45; }
+.activity { display: grid; }
+.act { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 2px; border-bottom: 1px solid var(--line); }
+.act:last-child { border-bottom: 0; }
+.act b { display: block; font-weight: 500; font-size: .95rem; }
+
+/* proof */
+.proof-head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 28px; }
+.scoreline { display: flex; flex-wrap: wrap; gap: 32px; }
+.score b { display: block; font-size: 2.6rem; line-height: 1; font-weight: 600; letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
+.score span { font: .74rem var(--mono); color: var(--haze); }
+.rail-bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 40px; }
+.rail-ctl { display: flex; gap: 8px; }
+.icon-btn { display: grid; place-items: center; width: 44px; height: 44px; border: 1px solid var(--line-2); border-radius: 999px; background: none; color: var(--ink); cursor: pointer; transition: border-color .2s, background .2s; }
+.icon-btn:hover { border-color: var(--signal); background: rgba(46, 230, 255, .08); }
+.icon-btn svg { width: 18px; height: 18px; }
+.rail { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(270px, 340px); gap: 16px; margin-top: 16px; padding-bottom: 14px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: thin; scrollbar-color: var(--line-2) transparent; }
+.fx { display: flex; flex-direction: column; gap: 12px; padding: 22px; scroll-snap-align: start; border: 1px solid var(--line); border-radius: 14px; background: var(--panel); }
+.fx-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.fx h3 { font-size: 1.28rem; line-height: 1.2; font-weight: 500; letter-spacing: -.02em; }
+.fx p { margin: 0; color: var(--haze); font-size: .94rem; line-height: 1.5; }
+.fx .meta { margin-top: auto; padding-top: 12px; border-top: 1px solid var(--line); }
+.weights { margin-top: 44px; }
+.weights-bar { display: flex; height: 12px; gap: 3px; margin-top: 14px; }
+.weights-bar span { border-radius: 3px; background: var(--c); }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 22px; margin: 12px 0 0; padding: 0; list-style: none; font-size: .88rem; color: var(--haze); }
+.legend li { display: flex; align-items: center; gap: 8px; }
+.legend li::before { content: ""; width: 10px; height: 10px; border-radius: 3px; background: var(--c); }
+.legend b { color: var(--ink); font: 500 .82rem var(--mono); font-variant-numeric: tabular-nums; }
+
+/* features */
+.feature { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(28px, 6vw, 88px); align-items: center; padding-block: clamp(40px, 6vw, 72px); }
+.feature + .feature { border-top: 1px solid var(--line); }
+.features > .feature:nth-child(even) .f-copy { order: 2; }
+.f-copy h3 { margin-bottom: 14px; font-size: clamp(1.6rem, 2.8vw, 2.2rem); line-height: 1.1; letter-spacing: -.03em; font-weight: 600; }
+.f-copy p { margin: 0; color: var(--haze); font-size: 1.05rem; max-width: 48ch; }
+.f-art { padding: clamp(18px, 3vw, 28px); border: 1px solid var(--line-2); border-radius: 18px; background: var(--panel); }
+.stack { display: flex; flex-direction: column; gap: 10px; }
+.row-item { display: flex; align-items: center; gap: 14px; padding: 14px; border: 1px solid var(--line); border-radius: 12px; background: rgba(3, 5, 11, .5); }
+.row-item > span:not([class]) { flex: 1; min-width: 0; }
+.row-item b { display: block; font-weight: 500; }
+.row-item small { display: block; color: var(--haze); font-size: .85rem; line-height: 1.4; }
+.row-item.off { opacity: .6; }
+.switch { position: relative; flex: none; width: 44px; height: 26px; border-radius: 999px; background: rgba(46, 230, 255, .25); border: 1px solid var(--signal); }
+.switch::after { content: ""; position: absolute; top: 3px; left: 21px; width: 18px; height: 18px; border-radius: 50%; background: var(--signal); box-shadow: 0 0 10px var(--signal); }
+.switch.off { background: rgba(120, 190, 255, .06); border-color: var(--line-2); }
+.switch.off::after { left: 3px; background: var(--dim); box-shadow: none; }
+.tick { display: grid; place-items: center; flex: none; width: 20px; height: 20px; border-radius: 6px; border: 1px solid var(--line-2); }
+.tick.on { background: var(--signal); border-color: var(--signal); }
+.tick svg { width: 12px; height: 12px; }
+.radio { flex: none; width: 18px; height: 18px; border-radius: 50%; border: 1px solid var(--line-2); }
+.warn { padding: 12px 14px; border: 1px solid rgba(255, 199, 94, .35); border-radius: 10px; background: rgba(255, 199, 94, .06); color: #ffe2a8; font-size: .88rem; line-height: 1.45; }
+.quote { padding: 12px 14px; border-left: 2px solid var(--ask); color: var(--ink); font-size: .95rem; background: rgba(255, 199, 94, .04); border-radius: 0 8px 8px 0; }
+.log { margin: 0; padding: 16px; overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: rgba(2, 4, 10, .8); font: .78rem/1.9 var(--mono); color: var(--haze); white-space: pre; }
+.log .k { color: var(--ink); }
+.log .ok { color: var(--done); }
+.log .bad { color: #ff8aa3; }
+.log .dup { color: var(--skip); }
+.log .dim { color: var(--dim); }
+.art-label { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 12px; font: .72rem var(--mono); color: var(--dim); }
+
+/* integrations */
+.int-group + .int-group { margin-top: 28px; }
+.int-label { margin: 0 0 12px; font: 500 .72rem var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--dim); }
+.int-grid { display: grid; gap: 12px; }
+.int-grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.int-grid.four { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.int { display: flex; flex-direction: column; padding: 18px; border: 1px solid var(--line); border-radius: 14px; background: var(--panel); transition: border-color .2s, transform .2s; }
+.int:hover { border-color: color-mix(in srgb, var(--c) 60%, transparent); transform: translateY(-2px); }
+.glyph { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 10px; font: 600 .95rem var(--mono); color: var(--c); background: color-mix(in srgb, var(--c) 12%, transparent); border: 1px solid color-mix(in srgb, var(--c) 35%, transparent); }
+.int h3 { margin: 12px 0 4px; font-size: 1.1rem; font-weight: 500; }
+.int p { margin: 0; color: var(--haze); font-size: .9rem; line-height: 1.45; }
+.int .meta { margin-top: auto; padding-top: 12px; }
+
+/* free band */
+.free { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 36px; align-items: center; padding: clamp(28px, 6vw, 72px); border: 1px solid var(--line-2); border-radius: 24px;
+  background: radial-gradient(600px 300px at 90% 0%, rgba(46, 230, 255, .16), transparent 70%), radial-gradient(500px 300px at 0% 100%, rgba(159, 125, 255, .14), transparent 70%), var(--panel); }
+.free h2 { max-width: 14ch; }
+.free .lede { margin-bottom: 28px; }
+.install { position: relative; border: 1px solid var(--line); border-radius: 12px; background: rgba(3, 5, 11, .75); }
+.install-top { display: flex; align-items: center; justify-content: space-between; padding: 8px 8px 8px 16px; border-bottom: 1px solid var(--line); font: .72rem var(--mono); color: var(--dim); }
+.install pre { margin: 0; padding: 16px; overflow-x: auto; font: .82rem/1.9 var(--mono); color: var(--ink); }
+
+/* faq */
+.faq { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: clamp(24px, 5vw, 72px); }
+details { border-bottom: 1px solid var(--line); }
+details:first-child { border-top: 1px solid var(--line); }
+summary { position: relative; padding: 20px 44px 20px 0; list-style: none; cursor: pointer; font-size: 1.1rem; font-weight: 500; }
+summary::-webkit-details-marker { display: none; }
+summary::after { content: "+"; position: absolute; right: 6px; top: 14px; font: 400 1.6rem var(--mono); color: var(--signal); transition: transform .2s; }
+details[open] summary::after { transform: rotate(45deg); }
+details p { margin: 0 0 20px; color: var(--haze); max-width: 62ch; }
+details code { font: .85em var(--mono); color: var(--ink); }
+
+/* footer */
+footer { margin-top: clamp(72px, 10vw, 128px); padding-block: 56px 40px; border-top: 1px solid var(--line); }
+.foot { display: grid; grid-template-columns: minmax(0, 1.6fr) repeat(3, minmax(0, 1fr)); gap: 32px; }
+.foot p { margin: 14px 0 0; color: var(--haze); font-size: .92rem; max-width: 34ch; }
+.foot h4 { margin-bottom: 12px; font: 500 .72rem var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--dim); }
+.foot ul { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.foot a { color: var(--haze); font-size: .92rem; text-decoration: none; }
+.foot a:hover { color: var(--ink); }
+.legal { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--line); font: .76rem var(--mono); color: var(--dim); }
+
+@media (max-width: 960px) {
+  .nav-links { display: none; }
+  .nav .btn { margin-left: auto; }
+  .hero-grid, .tabs, .feature, .faq, .free { grid-template-columns: minmax(0, 1fr); }
+  .hero-grid { align-items: start; }
+  .values { grid-template-columns: minmax(0, 1fr); }
+  .value, .value:first-child { padding-inline: 0; }
+  .value + .value { border-left: 0; border-top: 1px solid var(--line); }
+  .m-body { grid-template-columns: minmax(0, 1fr); }
+  .transcript { border-right: 0; border-bottom: 1px solid var(--line); }
+  .m-tally { margin-left: 0; }
+  .stage { min-height: 0; }
+  .features > .feature:nth-child(even) .f-copy { order: 0; }
+  .int-grid.four { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .int-grid.three { grid-template-columns: minmax(0, 1fr); }
+  .foot { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .foot > :first-child { grid-column: 1 / -1; }
+}
+@media (max-width: 560px) {
+  .int-grid.four { grid-template-columns: minmax(0, 1fr); }
+  .t-line { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .who { line-height: 1.4; }
+  .pipe-row { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+  .fine { overflow-wrap: anywhere; }
+  .nav .btn span { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="ftg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2ee6ff"/><stop offset="1" stop-color="#9f7dff"/></linearGradient>
+    <symbol id="mark" viewBox="0 0 32 32">
+      <path d="M16 2 28 9v14l-12 7L4 23V9z" fill="none" stroke="url(#ftg)" stroke-width="2"/>
+      <path d="m10 16.5 4 4 8-9" fill="none" stroke="url(#ftg)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="gh" viewBox="0 0 24 24"><path fill="currentColor" d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.52-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.28 1.18-3.09-.12-.29-.51-1.46.11-3.04 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.62 1.58.23 2.75.11 3.04.74.81 1.18 1.83 1.18 3.09 0 4.42-2.69 5.39-5.25 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5Z"/></symbol>
+    <symbol id="tickmark" viewBox="0 0 12 12"><path d="m2.5 6.2 2.3 2.3 4.7-5" fill="none" stroke="#02040a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  </defs>
+</svg>
+<div class="sky" aria-hidden="true"></div>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="Followthrough home">
+      <svg aria-hidden="true"><use href="#mark"/></svg>
+      <span class="wordmark">FOLLOW<span>THROUGH</span></span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#how">How it works</a></li>
+      <li><a href="#proof">Benchmark</a></li>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#integrations">Integrations</a></li>
+      <li><a href="#faq">FAQ</a></li>
+    </ul>
+    <a class="btn sm" href="https://github.com/followthrough-ai/followthrough-V1.0"><svg aria-hidden="true"><use href="#gh"/></svg><span>Star on GitHub</span></a>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="wrap">
+      <div class="hero-grid">
+        <div>
+          <span class="tag"><b>v1.0</b> Open source · MIT</span>
+          <h1>Every promise from the call, <em>done</em> before the next one.</h1>
+        </div>
+        <div class="hero-side">
+          <p>Followthrough reads your Granola meeting, finds what people committed to, and completes it: <strong>the email, the calendar invite, the Slack update, the deal stage.</strong> Exactly once, and only in the apps you allow.</p>
+          <div class="cta-row">
+            <a class="btn primary" href="https://github.com/followthrough-ai/followthrough-V1.0/blob/main/extension/README.md">Install the extension</a>
+            <a class="btn" href="https://github.com/followthrough-ai/followthrough-V1.0"><svg aria-hidden="true"><use href="#gh"/></svg>View source</a>
+          </div>
+          <p class="fine">Chrome &amp; Edge · runs on your computer · Python 3.10+</p>
+        </div>
+      </div>
+
+      <div class="values">
+        <div class="value">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>
+          <p><b>Runs on your computer</b>The engine listens on 127.0.0.1. No hosted server, and no bot joins your call.</p>
+        </div>
+        <div class="value">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.2a2.6 2.6 0 0 1 5 .9c0 1.8-2.5 2.2-2.5 3.9M12 17h.01"/></svg>
+          <p><b>Asks, never guesses</b>Two people called Priya? You get a question in the popup, not an email to the wrong one.</p>
+        </div>
+        <div class="value">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12a8 8 0 0 1 14-5.3M20 12a8 8 0 0 1-14 5.3"/><path d="M18 3v4h-4M6 21v-4h4"/></svg>
+          <p><b>Exactly once</b>Re-runs, restarts and lost responses never send the same thing twice.</p>
+        </div>
+      </div>
+
+      <div class="machine" id="machine" aria-label="Example: one meeting turned into completed actions">
+        <div class="m-head">
+          <span class="app" data-app="granola">Granola</span>
+          <b>Acme renewal sync</b>
+          <span class="meta">Alex, Sam · 12 lines · example call</span>
+          <div class="m-tally">
+            <span class="status ok">4 done</span>
+            <span class="status dup">1 repeat skipped</span>
+            <span class="status ign">1 hedge ignored</span>
+          </div>
+        </div>
+        <div class="m-body">
+          <div class="transcript">
+            <p class="col-label">What was said</p>
+            <div class="t-line"><span class="who">Alex</span><span>Hi Sam, thanks for joining. This is a quick sync on the Acme renewal.</span></div>
+            <div class="t-line"><span class="who">Sam</span><span>Sure. I spoke with Daniel Cho yesterday. They're happy with the product and want pricing for next year.</span></div>
+            <div class="t-line" data-k="gmail" data-app="gmail"><span class="who">Alex</span><span>Good. <span class="said">I'll send the pricing proposal to Daniel Cho.</span></span></div>
+            <div class="t-line"><span class="who">Sam</span><span>Great. They also asked for a pricing review meeting.</span></div>
+            <div class="t-line" data-k="calendar" data-app="calendar"><span class="who">Alex</span><span><span class="said">Let's put Friday at 10am on the calendar</span> for the pricing review.</span></div>
+            <div class="t-line"><span class="who">Sam</span><span>Works for me. The deal has moved forward, so the pipeline is out of date.</span></div>
+            <div class="t-line" data-k="airtable" data-app="airtable"><span class="who">Sam</span><span><span class="said">I'll update the deal stage to Negotiation for the Acme record in Airtable.</span></span></div>
+            <div class="t-line"><span class="who">Alex</span><span>Perfect. The rest of the team should know about this too.</span></div>
+            <div class="t-line" data-k="slack" data-app="slack"><span class="who">Alex</span><span><span class="said">Please post the renewal status in the Slack updates channel.</span></span></div>
+            <div class="t-line" data-k="hedge" data-app="none"><span class="who">Sam</span><span>Will do. <span class="said hedge">Maybe we could also share the case study with Priya next month</span>, but there's no rush for now.</span></div>
+            <div class="t-line" data-k="dup" data-app="gmail"><span class="who">Alex</span><span>Agreed, not today. <span class="said">Just to confirm, I'll send the pricing proposal to Daniel Cho.</span></span></div>
+            <div class="t-line"><span class="who">Sam</span><span>Sounds good. Thanks, talk soon.</span></div>
+          </div>
+          <div class="receipts">
+            <p class="col-label">What got done</p>
+            <div class="rcpt" data-k="gmail" data-app="gmail">
+              <div class="r-top"><span class="app">Gmail</span><span class="status ok">Sent</span></div>
+              <p class="r-what">Pricing proposal to Daniel Cho</p>
+              <p class="meta">matched in Google Contacts · key gmail:send:daniel-cho</p>
+            </div>
+            <div class="rcpt" data-k="calendar" data-app="calendar">
+              <div class="r-top"><span class="app">Google Calendar</span><span class="status ok">Booked</span></div>
+              <p class="r-what">Pricing review, Fri 10:00 to 10:30</p>
+              <p class="meta">30 min · local time · key calendar:event:fri-1000</p>
+            </div>
+            <div class="rcpt" data-k="airtable" data-app="airtable">
+              <div class="r-top"><span class="app">Airtable</span><span class="status ok">Updated</span></div>
+              <p class="r-what">Acme: Stage → Negotiation</p>
+              <p class="meta">Deals table · key airtable:update:acme</p>
+            </div>
+            <div class="rcpt" data-k="slack" data-app="slack">
+              <div class="r-top"><span class="app">Slack</span><span class="status ok">Posted</span></div>
+              <p class="r-what">Renewal status in #updates</p>
+              <p class="meta">key slack:post:#updates</p>
+            </div>
+            <div class="rcpt" data-k="dup" data-app="gmail">
+              <div class="r-top"><span class="app">Gmail</span><span class="status dup">Already done</span></div>
+              <p class="r-what">Repeat of the pricing proposal</p>
+              <p class="meta">same key found · no second email</p>
+            </div>
+            <div class="rcpt" data-k="hedge" data-app="none">
+              <div class="r-top"><span class="app">No app</span><span class="status ign">Ignored</span></div>
+              <p class="r-what">"Maybe we could…" isn't a commitment</p>
+              <p class="meta">hedged, so nothing was planned</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ticker" aria-label="Examples of what people say on calls and what Followthrough does">
+      <div class="ticker-track">
+        <div class="tk-group">
+          <span class="tk"><q>I'll send the pricing proposal to Daniel Cho</q><span class="arrow">→</span><span class="app" data-app="gmail">email sent</span></span>
+          <span class="tk"><q>Friday at 10am for the pricing review</q><span class="arrow">→</span><span class="app" data-app="calendar">event booked</span></span>
+          <span class="tk"><q>Move Acme to Negotiation</q><span class="arrow">→</span><span class="app" data-app="airtable">record updated</span></span>
+          <span class="tk"><q>Post the renewal status in updates</q><span class="arrow">→</span><span class="app" data-app="slack">message posted</span></span>
+          <span class="tk"><q>Loop in Priya on this</q><span class="arrow">→</span><span class="status ask">which Priya?</span></span>
+          <span class="tk"><q>Maybe we could share the case study</q><span class="arrow">→</span><span class="status ign">ignored, hedged</span></span>
+        </div>
+        <div class="tk-group" aria-hidden="true">
+          <span class="tk"><q>I'll send the pricing proposal to Daniel Cho</q><span class="arrow">→</span><span class="app" data-app="gmail">email sent</span></span>
+          <span class="tk"><q>Friday at 10am for the pricing review</q><span class="arrow">→</span><span class="app" data-app="calendar">event booked</span></span>
+          <span class="tk"><q>Move Acme to Negotiation</q><span class="arrow">→</span><span class="app" data-app="airtable">record updated</span></span>
+          <span class="tk"><q>Post the renewal status in updates</q><span class="arrow">→</span><span class="app" data-app="slack">message posted</span></span>
+          <span class="tk"><q>Loop in Priya on this</q><span class="arrow">→</span><span class="status ask">which Priya?</span></span>
+          <span class="tk"><q>Maybe we could share the case study</q><span class="arrow">→</span><span class="status ign">ignored, hedged</span></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="how">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">How it works</p>
+        <h2>You finish the meeting. It finishes the list.</h2>
+        <p class="lede">No copying notes into emails, no chasing yourself on Friday. Autopilot picks up every meeting you own as soon as Granola's summary is ready.</p>
+      </div>
+      <div class="tabs">
+        <div class="tablist" role="tablist" aria-label="From meeting to done">
+          <button class="tab" role="tab" id="tab-1" aria-controls="panel-1" aria-selected="true" type="button">
+            <span class="when">Meeting ends</span>
+            <span class="t">Granola writes the note</span>
+            <span class="d">When the AI summary and transcript are ready, the note becomes visible to the engine on your computer. You don't press anything.</span>
+          </button>
+          <button class="tab" role="tab" id="tab-2" aria-controls="panel-2" aria-selected="false" tabindex="-1" type="button">
+            <span class="when">Within 2 minutes</span>
+            <span class="t">Autopilot reads and plans</span>
+            <span class="d">Commitments are pulled out, people and records are matched against your apps, and each commitment gets exactly one action, or a question.</span>
+          </button>
+          <button class="tab" role="tab" id="tab-3" aria-controls="panel-3" aria-selected="false" tabindex="-1" type="button">
+            <span class="when">A few minutes later</span>
+            <span class="t">The work is done, and you're told</span>
+            <span class="d">Allowed actions run once. A notification says what went out, and anything that needs you waits in the popup.</span>
+          </button>
+        </div>
+
+        <div class="stage">
+          <div class="stage-panel" role="tabpanel" id="panel-1" aria-labelledby="tab-1">
+            <div class="card">
+              <div class="r-top"><span class="app" data-app="granola">Granola note</span><span class="status ok">Summary ready</span></div>
+              <h4>Acme renewal sync</h4>
+              <p class="meta">Alex, Sam · owned by alex@company.com · ended just now</p>
+              <ul>
+                <li>Alex to send the pricing proposal to Daniel Cho</li>
+                <li>Pricing review on Friday at 10am</li>
+                <li>Sam to move Acme to Negotiation in Airtable</li>
+                <li>Renewal status to be shared in #updates</li>
+              </ul>
+            </div>
+            <div class="watch"><span class="pulse" aria-hidden="true"></span>Engine on 127.0.0.1:8765 · checks Granola every 2 min</div>
+          </div>
+
+          <div class="stage-panel" role="tabpanel" id="panel-2" aria-labelledby="tab-2" hidden>
+            <div class="pipe">
+              <div class="pipe-row"><span class="step">Extract</span><div><p>4 commitments found</p><p class="meta">1 repeat merged · 1 hedge ignored · Groq with rule-based fallback</p></div></div>
+              <div class="pipe-row"><span class="step">Resolve</span><div><p>Daniel Cho, Acme, #updates matched</p><p class="meta">every match must clear the 0.85 confidence gate</p></div></div>
+              <div class="pipe-row"><span class="step">Plan</span><div><p>1 email · 1 event · 1 record · 1 post</p><p class="meta">one validated action per commitment</p></div></div>
+              <div class="pipe-row"><span class="step">Check</span><div><p>All four apps allowed · Act for real on</p><p class="meta">unticked apps would be listed, not sent</p></div></div>
+            </div>
+          </div>
+
+          <div class="stage-panel" role="tabpanel" id="panel-3" aria-labelledby="tab-3" hidden>
+            <div class="notif">
+              <svg aria-hidden="true"><use href="#mark"/></svg>
+              <div><b>Acme renewal sync: 4 done</b><p>Proposal emailed to Daniel Cho, pricing review booked, Acme moved to Negotiation, #updates posted.</p></div>
+            </div>
+            <div class="card">
+              <p class="col-label" style="margin-left:0">Recent meetings</p>
+              <div class="activity">
+                <div class="act"><div><b>Acme renewal sync</b><span class="meta">4 actions · just now</span></div><span class="status ok">Done</span></div>
+                <div class="act"><div><b>Weekly pipeline review</b><span class="meta">"Loop in Priya" · 2 matches</span></div><span class="status ask">Needs you</span></div>
+                <div class="act"><div><b>Globex kickoff</b><span class="meta">Airtable not allowed · listed for you</span></div><span class="status ign">Skipped</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="proof">
+    <div class="wrap">
+      <div class="proof-head">
+        <div>
+          <p class="eyebrow">Benchmark</p>
+          <h2>Graded on what happened, not on what it claims.</h2>
+          <p class="lede">Five seeded meetings with gold labels the agent never sees. The evaluator reads the side-effect log, so a confident email to the wrong person still fails.</p>
+        </div>
+        <div class="scoreline">
+          <div class="score"><b>5/5</b><span>fixtures pass</span></div>
+          <div class="score"><b>6/6</b><span>invariant tests</span></div>
+          <div class="score"><b>0</b><span>duplicates under faults</span></div>
+        </div>
+      </div>
+
+      <div class="rail-bar">
+        <p class="int-label" style="margin:0">The fixtures</p>
+        <div class="rail-ctl">
+          <button class="icon-btn" type="button" data-rail="-1" aria-label="Previous fixture"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
+          <button class="icon-btn" type="button" data-rail="1" aria-label="Next fixture"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+        </div>
+      </div>
+      <div class="rail" id="rail" tabindex="0" aria-label="Benchmark fixtures">
+        <article class="fx">
+          <div class="fx-top"><span class="meta">fixture_001 · basic multi-app</span><span class="status ok">Pass</span></div>
+          <h3>One call, three apps</h3>
+          <p>Email, calendar event and Slack post from a single meeting, end to end.</p>
+          <p class="meta">Gmail · Calendar · Slack</p>
+        </article>
+        <article class="fx">
+          <div class="fx-top"><span class="meta">fixture_002 · four apps</span><span class="status ok">Pass</span></div>
+          <h3>A deal record moves too</h3>
+          <p>Adds an Airtable stage update alongside the email, event and post.</p>
+          <p class="meta">Gmail · Calendar · Slack · Airtable</p>
+        </article>
+        <article class="fx">
+          <div class="fx-top"><span class="meta">fixture_003 · ambiguous entity</span><span class="status ok">Pass</span></div>
+          <h3>Two people called Priya</h3>
+          <p>Priya Sharma or Priyanka Rao? The agent asks instead of choosing, and nothing is sent.</p>
+          <p class="meta">expected: clarification · 0 side effects</p>
+        </article>
+        <article class="fx">
+          <div class="fx-top"><span class="meta">fixture_004 · negatives + duplicates</span><span class="status ok">Pass</span></div>
+          <h3>Hedges ignored, repeats merged</h3>
+          <p>"Maybe we could" plans nothing, and asking for the same email twice sends it once.</p>
+          <p class="meta">expected: 1 email, 0 hallucinated actions</p>
+        </article>
+        <article class="fx">
+          <div class="fx-top"><span class="meta">fixture_005 · fault injection</span><span class="status ok">Pass</span></div>
+          <h3>Timeout, 429, lost response</h3>
+          <p>All three faults fire. After a restart mid-run the replay produces zero new side effects.</p>
+          <p class="meta">expected: exactly once per action</p>
+        </article>
+      </div>
+
+      <div class="weights">
+        <p class="int-label" style="margin:0">How a run is scored · plus 5 hard-fail invariants</p>
+        <div class="weights-bar" aria-hidden="true">
+          <span style="flex:25;--c:var(--signal)"></span>
+          <span style="flex:20;--c:#6fbfff"></span>
+          <span style="flex:20;--c:var(--violet)"></span>
+          <span style="flex:20;--c:#d08bff"></span>
+          <span style="flex:15;--c:var(--done)"></span>
+        </div>
+        <ul class="legend">
+          <li style="--c:var(--signal)"><b>25%</b> Commitment extraction F1</li>
+          <li style="--c:#6fbfff"><b>20%</b> Entity accuracy</li>
+          <li style="--c:var(--violet)"><b>20%</b> Action planning</li>
+          <li style="--c:#d08bff"><b>20%</b> Execution correctness</li>
+          <li style="--c:var(--done)"><b>15%</b> Side-effect safety</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="features">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">Built for real inboxes</p>
+        <h2>Automation you can leave switched on.</h2>
+      </div>
+      <div class="features">
+        <div class="feature">
+          <div class="f-copy">
+            <h3>You decide when it acts for real</h3>
+            <p>Start in preview and see every email, invite and update it would make, with nothing leaving your machine. Switch on Act for real when you trust it, and switch it off any time.</p>
+          </div>
+          <div class="f-art">
+            <div class="stack">
+              <div class="row-item"><span class="switch" aria-hidden="true"></span><span><b>Act for real</b><small>Sends real emails, events, posts and record updates</small></span></div>
+              <div class="row-item"><span class="switch off" aria-hidden="true"></span><span><b>Only my meetings</b><small>Off: also acts on notes shared with you</small></span></div>
+              <p class="warn">Real mode is on. Anything ambiguous is asked, never guessed.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="feature">
+          <div class="f-copy">
+            <h3>Only in the apps you tick</h3>
+            <p>Untick Airtable and deal updates are listed for you instead of made. Allowed apps are checked before every single action, not just at setup.</p>
+          </div>
+          <div class="f-art">
+            <div class="stack">
+              <div class="row-item" data-app="gmail"><span class="tick on" aria-hidden="true"><svg><use href="#tickmark"/></svg></span><span><b>Gmail</b><small>Send follow-up emails</small></span><span class="status ok">Allowed</span></div>
+              <div class="row-item" data-app="calendar"><span class="tick on" aria-hidden="true"><svg><use href="#tickmark"/></svg></span><span><b>Google Calendar</b><small>Book the meetings you agreed</small></span><span class="status ok">Allowed</span></div>
+              <div class="row-item" data-app="slack"><span class="tick on" aria-hidden="true"><svg><use href="#tickmark"/></svg></span><span><b>Slack</b><small>Post updates to your channel</small></span><span class="status ok">Allowed</span></div>
+              <div class="row-item off" data-app="airtable"><span class="tick" aria-hidden="true"></span><span><b>Airtable</b><small>Update deal records</small></span><span class="status ign">Listed only</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="feature">
+          <div class="f-copy">
+            <h3>When a name is ambiguous, it asks</h3>
+            <p>Every person, channel and record has to clear a 0.85 confidence gate, and near-ties are rejected. Two people called Priya means a question in your popup, never an email to the wrong one.</p>
+          </div>
+          <div class="f-art">
+            <div class="stack">
+              <div class="art-label"><span>Weekly pipeline review</span><span class="status ask">Needs you</span></div>
+              <p class="quote">"Loop in Priya on the proposal."</p>
+              <b>Which Priya did you mean?</b>
+              <div class="row-item"><span class="radio" aria-hidden="true"></span><span><b>Priya Sharma</b><small>Google Contacts</small></span></div>
+              <div class="row-item"><span class="radio" aria-hidden="true"></span><span><b>Priyanka Rao</b><small>Slack member</small></span></div>
+              <p class="meta">Nothing is sent until you answer.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="feature">
+          <div class="f-copy">
+            <h3>Exactly once, even when the network lies</h3>
+            <p>Each action claims an idempotency key before it calls the app. Timeouts and rate limits are retried; a response lost after the email already went out is never re-sent, even across a restart.</p>
+          </div>
+          <div class="f-art">
+            <div class="art-label"><span>fixture_005 · fault-injected replay</span><span>gmail:send:daniel-cho</span></div>
+<pre class="log"><span class="dim">claim </span> <span class="k">key</span>          pending
+<span class="dim">call  </span> attempt 1    <span class="bad">timeout, retry</span>
+<span class="dim">call  </span> attempt 2    <span class="bad">429, retry</span>
+<span class="dim">call  </span> attempt 3    <span class="ok">applied</span> <span class="bad">response lost</span>
+<span class="dim">──── engine restarted ────</span>
+<span class="dim">claim </span> <span class="k">key</span>          already claimed
+<span class="dim">skip  </span> <span class="dup">skipped_duplicate</span>  <span class="ok">0 new effects</span></pre>
+          </div>
+        </div>
+
+        <div class="feature">
+          <div class="f-copy">
+            <h3>Every run leaves a trail you can replay</h3>
+            <p>One JSONL trace per run records each step, from extraction to the final result, next to a side-effect log of what actually changed. "Why did it email that person?" has an answer.</p>
+          </div>
+          <div class="f-art">
+            <div class="art-label"><span>runs/&lt;run_id&gt;/trace.jsonl</span><span>example</span></div>
+<pre class="log">{<span class="k">"step"</span>:"extract", "method":"groq", "commitments":4}
+{<span class="k">"step"</span>:"resolve", "name":"Daniel Cho", "source":"contacts"}
+{<span class="k">"step"</span>:"plan", "app":"gmail", "action":"send_email"}
+{<span class="k">"step"</span>:"execute", "result":<span class="ok">"applied"</span>}
+{<span class="k">"step"</span>:"execute", "result":<span class="dup">"skipped_duplicate"</span>}</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="integrations">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">Integrations</p>
+        <h2>Works where the follow-up lives.</h2>
+        <p class="lede">Lookups are read-only. Writes use the narrowest scopes each app offers.</p>
+      </div>
+      <div class="int-group">
+        <p class="int-label">Reads from</p>
+        <div class="int-grid three">
+          <div class="int" data-app="granola"><span class="glyph">Gr</span><h3>Granola</h3><p>Finished meeting notes and full transcripts.</p><p class="meta">personal notes API key</p></div>
+          <div class="int" data-app="groq"><span class="glyph">Gq</span><h3>Groq</h3><p>Commitment extraction, paced to your token limit.</p><p class="meta">openai/gpt-oss-120b</p></div>
+          <div class="int" data-app="contacts"><span class="glyph">Co</span><h3>Google Contacts</h3><p>Who "Daniel Cho" is, and their address.</p><p class="meta">contacts.readonly</p></div>
+        </div>
+      </div>
+      <div class="int-group">
+        <p class="int-label">Acts in</p>
+        <div class="int-grid four">
+          <div class="int" data-app="gmail"><span class="glyph">Gm</span><h3>Gmail</h3><p>Sends the follow-up you promised.</p><p class="meta">gmail.send</p></div>
+          <div class="int" data-app="calendar"><span class="glyph">Ca</span><h3>Google Calendar</h3><p>Books the meeting you agreed on.</p><p class="meta">calendar.events</p></div>
+          <div class="int" data-app="slack"><span class="glyph">Sl</span><h3>Slack</h3><p>Posts the update to the right channel.</p><p class="meta">chat:write · users:read</p></div>
+          <div class="int" data-app="airtable"><span class="glyph">At</span><h3>Airtable</h3><p>Moves the deal to its new stage.</p><p class="meta">data.records:write · one base</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="free">
+        <div>
+          <p class="eyebrow">Free and open source</p>
+          <h2>Bring your keys. Keep your data.</h2>
+          <p class="lede">MIT licensed. Run it on your own machine with your own accounts, and read every line it runs.</p>
+          <div class="cta-row">
+            <a class="btn primary" href="https://github.com/followthrough-ai/followthrough-V1.0/blob/main/extension/README.md">Install the extension</a>
+            <a class="btn" href="https://github.com/followthrough-ai/followthrough-V1.0/blob/main/docs/ARCHITECTURE.md">Read the architecture</a>
+          </div>
+        </div>
+        <div class="install">
+          <div class="install-top"><span>PowerShell or bash</span><button class="btn sm" id="copy-install" type="button">Copy</button></div>
+<pre id="install-cmd">git clone https://github.com/followthrough-ai/followthrough-V1.0
+cd followthrough-V1.0
+pip install groq google-auth-oauthlib
+python run.py engine</pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="faq">
+    <div class="wrap faq">
+      <div>
+        <p class="eyebrow">FAQ</p>
+        <h2>Before you switch it on.</h2>
+      </div>
+      <div>
+        <details open>
+          <summary>Will it send anything without me?</summary>
+          <p>Only when Act for real is switched on in the extension (with a confirmation) or <code>FOLLOWTHROUGH_MODE=real</code> is set. Otherwise every run is a preview: you see what it would do and nothing is sent.</p>
+        </details>
+        <details>
+          <summary>What do I need to run it?</summary>
+          <p>Python 3.10 or newer, Chrome or Edge, a Granola Business or Enterprise plan for API access, and a Groq API key (the free tier works). Then connect the apps you want it to use.</p>
+        </details>
+        <details>
+          <summary>What happens if it isn't sure who someone is?</summary>
+          <p>It asks. Matches below the 0.85 confidence gate, or two candidates that score almost the same, become a question in the popup. Nothing is done for that commitment until you answer.</p>
+        </details>
+        <details>
+          <summary>Can the same email go out twice?</summary>
+          <p>No. Each action is keyed by what it does (app, action and target), and the key is claimed before the app is called. Re-running a meeting or restarting the engine finds the key and skips the action.</p>
+        </details>
+        <details>
+          <summary>Where does my meeting data go?</summary>
+          <p>The engine runs on your computer and only talks to the services you configure. Transcripts are sent to Groq for extraction, so check your organisation's data policy before using real customer calls.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <div>
+        <a class="brand" href="#top" aria-label="Followthrough home">
+          <svg aria-hidden="true"><use href="#mark"/></svg>
+          <span class="wordmark">FOLLOW<span>THROUGH</span></span>
+        </a>
+        <p>Turns meeting commitments into completed, verified work across Gmail, Google Calendar, Slack and Airtable.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <ul>
+          <li><a href="#how">How it works</a></li>
+          <li><a href="#proof">Benchmark</a></li>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#integrations">Integrations</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Docs</h4>
+        <ul>
+          <li><a href="https://github.com/followthrough-ai/followthrough-V1.0/blob/main/extension/README.md">Install the extension</a></li>
+          <li><a href="https://github.com/followthrough-ai/followthrough-V1.0/blob/main/docs/PRD.md">Product requirements</a></li>
+          <li><a href="https://github.com/followthrough-ai/followthrough-V1.0/blob/main/docs/ARCHITECTURE.md">Architecture</a></li>
+          <li><a href="https://github.com/followthrough-ai/followthrough-V1.0/blob/main/docs/RELIABILITY_BRIEF.md">Reliability brief</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Project</h4>
+        <ul>
+          <li><a href="https://github.com/followthrough-ai/followthrough-V1.0">GitHub</a></li>
+          <li><a href="https://github.com/followthrough-ai/followthrough-V1.0/issues">Report an issue</a></li>
+          <li><a href="https://github.com/followthrough-ai/followthrough-V1.0/blob/main/LICENSE">MIT License</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="legal">
+      <span>© 2026 followthrough-ai · MIT License</span>
+      <span>Built for the Multi-App AI Agent Hackathon</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(() => {
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  const machine = document.getElementById("machine");
+  const order = ["gmail", "calendar", "airtable", "slack", "hedge", "dup"];
+  let idx = 0;
+  let timer = null;
+  const show = (k) => {
+    machine.querySelectorAll(".live").forEach((el) => el.classList.remove("live"));
+    machine.querySelectorAll('[data-k="' + k + '"]').forEach((el) => el.classList.add("live"));
+  };
+  const start = () => {
+    if (reduce || timer) return;
+    timer = setInterval(() => { idx = (idx + 1) % order.length; show(order[idx]); }, 2400);
+  };
+  const stop = () => { clearInterval(timer); timer = null; };
+  show(order[0]);
+  start();
+  machine.querySelectorAll("[data-k]").forEach((el) => {
+    el.addEventListener("mouseenter", () => { stop(); idx = order.indexOf(el.dataset.k); show(el.dataset.k); });
+  });
+  machine.addEventListener("mouseleave", start);
+
+  const tabs = Array.from(document.querySelectorAll('[role="tab"]'));
+  const select = (tab) => {
+    tabs.forEach((t) => {
+      const on = t === tab;
+      t.setAttribute("aria-selected", String(on));
+      t.tabIndex = on ? 0 : -1;
+      document.getElementById(t.getAttribute("aria-controls")).hidden = !on;
+    });
+  };
+  tabs.forEach((tab, n) => {
+    tab.addEventListener("click", () => select(tab));
+    tab.addEventListener("keydown", (e) => {
+      const step = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 }[e.key];
+      if (!step) return;
+      e.preventDefault();
+      const next = tabs[(n + step + tabs.length) % tabs.length];
+      select(next);
+      next.focus();
+    });
+  });
+
+  const rail = document.getElementById("rail");
+  document.querySelectorAll("[data-rail]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const card = rail.querySelector(".fx");
+      rail.scrollBy({ left: (card.offsetWidth + 16) * Number(btn.dataset.rail), behavior: reduce ? "auto" : "smooth" });
+    });
+  });
+
+  const copy = document.getElementById("copy-install");
+  copy.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(document.getElementById("install-cmd").textContent);
+      copy.textContent = "Copied";
+    } catch {
+      copy.textContent = "Select to copy";
+    }
+    setTimeout(() => { copy.textContent = "Copy"; }, 1800);
+  });
+})();
+</script>
+</body>
+</html>
