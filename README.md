@@ -2,7 +2,7 @@
 
 # ◆ Followthrough
 
-**Turn every meeting commitment into completed, verified work — across Gmail, Google Calendar, Slack and Airtable.**
+**Turn every meeting commitment into completed, verified work - across Gmail, Google Calendar, Slack and Airtable.**
 
 ![Python](https://img.shields.io/badge/python-3.10%2B-2ee6ff?style=flat-square)
 ![Core dependencies](https://img.shields.io/badge/core-stdlib%20only-9f7dff?style=flat-square)
@@ -41,21 +41,21 @@
 
 ## Overview
 
-Customer-facing teams make dozens of promises on calls — *"I'll send the proposal"*, *"let's meet Friday at 10"*, *"I'll move the deal to Negotiation"*. Many are forgotten, done late, or done for the wrong person.
+Customer-facing teams make dozens of promises on calls - *"I'll send the proposal"*, *"let's meet Friday at 10"*, *"I'll move the deal to Negotiation"*. Many are forgotten, done late, or done for the wrong person.
 
 **Followthrough** is a multi-step AI agent that reads a [Granola](https://granola.ai) meeting transcript and:
 
 1. **Extracts** every explicit commitment (and ignores hedged talk like *"maybe we could…"*).
 2. **Resolves** each person, channel and record against your real apps, with a confidence gate.
-3. **Plans** exactly one structured action per commitment — or asks a clarifying question instead of guessing.
+3. **Plans** exactly one structured action per commitment - or asks a clarifying question instead of guessing.
 4. **Executes** approved actions exactly once, with retries, idempotency keys and a full audit trail.
 5. **Grades itself** against seeded fixtures with gold labels the agent never sees.
 
-It ships as a **browser extension** (the main product: sign up, allow apps, and it runs on autopilot after every meeting), a **local engine** with a futuristic web dashboard, and a **CLI** — all driving the same pipeline.
+It ships as a **browser extension** (the main product: sign up, allow apps, and it runs on autopilot after every meeting), a **local engine** with a futuristic web dashboard, and a **CLI** - all driving the same pipeline.
 
 > Built for the **Multi-App AI Agent Hackathon** (≥ 3 external apps, provable reliability).
 
-## The extension — autopilot after every meeting
+## The extension - autopilot after every meeting
 
 ```mermaid
 flowchart LR
@@ -81,7 +81,7 @@ From then on, a few minutes after each meeting you own ends, the allowed actions
 |---|---|
 | 🎙️ **Transcript ingestion** | Granola public API (paginated transcripts) or pasted text |
 | 🧠 **LLM extraction** | Groq `openai/gpt-oss-120b`, long transcripts split and paced to the tokens-per-minute limit, automatic rule-based fallback with visible warnings |
-| 🎯 **Entity resolution** | Google Contacts, Slack members and channels, Airtable records — ambiguous or low-confidence matches become questions |
+| 🎯 **Entity resolution** | Google Contacts, Slack members and channels, Airtable records - ambiguous or low-confidence matches become questions |
 | ⚡ **Four action types** | Gmail send · Calendar event · Slack post · Airtable record update |
 | 🛡️ **Human in the loop** | Dry-run preview, per-action selection, explicit confirmation, real mode locked behind `.env` |
 | 🔁 **Exactly-once execution** | File-backed idempotency keys claimed *before* each call; safe re-runs and restarts |
@@ -182,7 +182,7 @@ sequenceDiagram
 
 ## Reliability guarantees
 
-Every fixture run is graded on the **side-effect log** — what actually happened — never on the agent's own claims.
+Every fixture run is graded on the **side-effect log** - what actually happened - never on the agent's own claims.
 
 | # | Invariant | How it is enforced |
 |---|---|---|
@@ -228,7 +228,7 @@ Live idempotency keys are derived from **what the action does** (app, action, ta
 
 > ⚠️ **Use sandbox accounts.** Real mode sends real emails, creates real events, posts to Slack and edits Airtable.
 
-### Step 1 — Install
+### Step 1 - Install
 
 ```bash
 git clone <your-repo-url> followthrough
@@ -238,7 +238,7 @@ pip install groq google-auth-oauthlib
 
 The core needs no packages. `groq` powers LLM extraction; `google-auth-oauthlib` is only used once, by `get_google_token.py`.
 
-### Step 2 — Configure
+### Step 2 - Configure
 
 ```bash
 cp .env.example .env        # Windows: copy .env.example .env
@@ -246,7 +246,7 @@ cp .env.example .env        # Windows: copy .env.example .env
 
 Fill in the keys (see [Connecting your accounts](#connecting-your-accounts)). Keep `FOLLOWTHROUGH_MODE=mock` for now.
 
-### Step 3 — Authorise Google (one time)
+### Step 3 - Authorise Google (one time)
 
 Download your OAuth **Desktop app** client as `credentials.json` into the project folder, then:
 
@@ -256,7 +256,7 @@ python get_google_token.py
 
 A browser opens; sign in with your test account. `token.json` is saved and renewed automatically afterwards.
 
-### Step 4 — Verify every connection
+### Step 4 - Verify every connection
 
 ```bash
 python run.py check
@@ -270,21 +270,21 @@ python run.py check
 ✅ Google    token valid; Calendar and Contacts reachable
 ```
 
-### Step 5 — Launch the app
+### Step 5 - Launch the app
 
 ```bash
 python run.py ui            # opens http://127.0.0.1:8765
 ```
 
-### Step 6 — Preview a call (safe)
+### Step 6 - Preview a call (safe)
 
 1. **Live run** tab → choose a **Granola** note, or **Paste** → **Load the demo call**.
 2. Click **◆ Analyze · dry run** and watch the live log.
 3. Review the planned action cards and the *Needs your input* questions. Nothing has been sent.
 
-### Step 7 — Execute for real
+### Step 7 - Execute for real
 
-1. Set `FOLLOWTHROUGH_MODE=real` in `.env` and restart `python run.py ui` — the header shows **REAL MODE · ARMED**.
+1. Set `FOLLOWTHROUGH_MODE=real` in `.env` and restart `python run.py ui` - the header shows **REAL MODE · ARMED**.
 2. Analyze the call again, untick anything you don't want, click **Execute**, then **Send for real**.
 3. Each card turns **Done**, **Failed** (with the reason) or **Already done**.
 4. Set `FOLLOWTHROUGH_MODE=mock` again when you finish.
@@ -321,7 +321,7 @@ Sam:  Sounds good. Thanks, talk soon.
 ## Connecting your accounts
 
 <details>
-<summary><b>Groq</b> — LLM extraction</summary>
+<summary><b>Groq</b> - LLM extraction</summary>
 
 1. Create a key at [console.groq.com/keys](https://console.groq.com/keys).
 2. Set `GROQ_API_KEY`. Defaults: `GROQ_MODEL=openai/gpt-oss-120b`, `GROQ_REASONING_EFFORT=medium`, `GROQ_TEMPERATURE=0.2`.
@@ -329,7 +329,7 @@ Sam:  Sounds good. Thanks, talk soon.
 </details>
 
 <details>
-<summary><b>Granola</b> — transcripts</summary>
+<summary><b>Granola</b> - transcripts</summary>
 
 1. Granola → **Settings → Connectors → API keys** (Business or Enterprise plan).
 2. Access: **Personal notes** only. Choose an expiry for hackathon use.
@@ -337,7 +337,7 @@ Sam:  Sounds good. Thanks, talk soon.
 </details>
 
 <details>
-<summary><b>Google</b> — Gmail, Calendar, Contacts</summary>
+<summary><b>Google</b> - Gmail, Calendar, Contacts</summary>
 
 1. [Google Cloud Console](https://console.cloud.google.com) → new project → enable **Gmail API**, **Google Calendar API**, **People API**.
 2. OAuth consent screen: **External**, **Testing**, add your test account as a test user.
@@ -348,7 +348,7 @@ Sam:  Sounds good. Thanks, talk soon.
 </details>
 
 <details>
-<summary><b>Slack</b> — posts and mentions</summary>
+<summary><b>Slack</b> - posts and mentions</summary>
 
 1. [api.slack.com/apps](https://api.slack.com/apps) → **Create New App → From a manifest**:
 
@@ -373,7 +373,7 @@ Sam:  Sounds good. Thanks, talk soon.
 </details>
 
 <details>
-<summary><b>Airtable</b> — deal records</summary>
+<summary><b>Airtable</b> - deal records</summary>
 
 1. Create a base with a table **`Deals`**: primary field **`Name`**, single select **`Stage`** with one-word options (`Discovery`, `Qualification`, `Proposal`, `Negotiation`, `Won`, `Lost`).
 2. [airtable.com/create/tokens](https://airtable.com/create/tokens): scopes `data.records:read`, `data.records:write`, access to that base only.
@@ -469,23 +469,23 @@ All settings are read from environment variables or `.env` (real environment var
 | Variable | Default | Description |
 |---|---|---|
 | `FOLLOWTHROUGH_MODE` | `mock` | `real` arms the engine from `.env` (the extension's **Act for real** switch does the same without editing files) |
-| `GROQ_API_KEY` | — | Enables LLM extraction |
+| `GROQ_API_KEY` | - | Enables LLM extraction |
 | `GROQ_MODEL` | `openai/gpt-oss-120b` | Groq model id |
 | `GROQ_REASONING_EFFORT` | `medium` | `low` \| `medium` \| `high` |
 | `GROQ_TEMPERATURE` | `0.2` | Lower = more consistent extraction |
 | `GROQ_TPM_LIMIT` | `8000` | Tokens per minute for your Groq tier |
 | `GROQ_CHUNK_CHARS` | `16000` | Maximum transcript part size |
-| `GRANOLA_API_KEY` | — | Granola API key |
+| `GRANOLA_API_KEY` | - | Granola API key |
 | `GRANOLA_API_URL` | `https://public-api.granola.ai/v1` | Granola base URL |
 | `GOOGLE_CREDENTIALS_JSON` | `credentials.json` | OAuth desktop client (relative to project root) |
 | `GOOGLE_TOKEN_JSON` | `token.json` | Stored, auto-renewed token |
 | `GMAIL_API_URL` | `https://gmail.googleapis.com/gmail/v1` | Gmail base URL |
 | `GCAL_API_URL` | `https://www.googleapis.com/calendar/v3` | Calendar base URL |
 | `FT_EVENT_MINUTES` | `30` | Calendar event length |
-| `SLACK_BOT_TOKEN` | — | `xoxb-…` bot token |
+| `SLACK_BOT_TOKEN` | - | `xoxb-…` bot token |
 | `SLACK_API_URL` | `https://slack.com/api` | Slack base URL |
-| `AIRTABLE_API_KEY` | — | Personal access token |
-| `AIRTABLE_BASE_ID` | — | `app…` |
+| `AIRTABLE_API_KEY` | - | Personal access token |
+| `AIRTABLE_BASE_ID` | - | `app…` |
 | `AIRTABLE_TABLE_NAME` | `Deals` | Table name |
 | `AIRTABLE_API_URL` | `https://api.airtable.com/v0` | Airtable base URL |
 | `FT_MAX_RETRIES` | `3` | Attempts per action |
@@ -519,7 +519,7 @@ Every run writes to `runs/<run_id>/`:
 | File | Contents |
 |---|---|
 | `trace.jsonl` | Every step: ingest, extraction method and warnings, resolutions, plans, retries, errors, results |
-| `actions.jsonl` | The side-effect log — the source of truth the evaluator grades |
+| `actions.jsonl` | The side-effect log - the source of truth the evaluator grades |
 
 Additional state: `runs/live_idempotency.jsonl` (live exactly-once keys) and `runs/score_history.jsonl` (benchmark history).
 
