@@ -1,0 +1,5 @@
+Sam: Quick recap of the Acme renewal call.
+Jordan: I'll send the renewal summary to Daniel Cho.
+Sam: I'll update the deal stage to Negotiation for the Acme record in Airtable.
+Jordan: Let's schedule 10am Friday on the calendar for the pricing review.
+Sam: Please post the renewal status in the Slack updates channel and loop in Alex Kim.

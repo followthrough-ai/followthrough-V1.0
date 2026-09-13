@@ -1,0 +1,16 @@
+{
+  "fixture_id": "fixture_001",
+  "category": "basic_multi_app",
+  "commitments": [
+    {"id": "g1", "description": "email the pricing deck to Priya Sharma",
+     "expected_action": {"app": "gmail", "action": "send_email",
+       "target": "priya.sharma@acme.com",
+       "parameters": {"recipient": "priya.sharma@acme.com"}}},
+    {"id": "g2", "description": "put 3pm tomorrow on the calendar technical review",
+     "expected_action": {"app": "calendar", "action": "create_event",
+       "target": "tomorrow 3pm", "parameters": {"time": "tomorrow 3pm"}}},
+    {"id": "g3", "description": "post the launch update in the Slack updates channel loop in Alex Kim",
+     "expected_action": {"app": "slack", "action": "send_message",
+       "target": "C001UPD", "parameters": {"channel": "C001UPD", "mention": "U100AK"}}}
+  ]
+}

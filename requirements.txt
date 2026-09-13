@@ -1,0 +1,5 @@
+# The core (pipeline, integrations, web UI) uses only the Python standard library.
+# Optional packages:
+groq                    # LLM commitment extraction (without it, the rule-based extractor is used)
+google-auth-oauthlib    # only for the one-time Google sign-in: python get_google_token.py
+# pytest                # optional test runner (tests also run with plain python)

@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Gold labels",
+  "type": "object",
+  "required": ["fixture_id", "commitments"],
+  "properties": {
+    "fixture_id": {"type": "string"},
+    "category": {"type": "string"},
+    "commitments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "description"],
+        "properties": {
+          "id": {"type": "string"},
+          "description": {"type": "string"},
+          "expect_clarification": {"type": "boolean"},
+          "expected_action": {
+            "type": "object",
+            "required": ["app", "action"],
+            "properties": {
+              "app": {"enum": ["gmail", "calendar", "slack", "airtable"]},
+              "action": {"type": "string"},
+              "target": {"type": "string"},
+              "parameters": {"type": "object"}
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Followthrough</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 2 28 9v14l-12 7L4 23V9z' fill='%2303050b' stroke='%232ee6ff' stroke-width='2'/%3E%3Cpath d='m10 16.5 4 4 8-9' fill='none' stroke='%239f7dff' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<div class="bg-grid" aria-hidden="true"></div>
+
+<header class="topbar">
+  <div class="brand">
+    <svg viewBox="0 0 32 32" aria-hidden="true">
+      <defs><linearGradient id="ft-g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2ee6ff"/><stop offset="1" stop-color="#9f7dff"/></linearGradient></defs>
+      <path d="M16 2 28 9v14l-12 7L4 23V9z" fill="none" stroke="url(#ft-g)" stroke-width="2"/>
+      <path d="m10 16.5 4 4 8-9" fill="none" stroke="url(#ft-g)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span class="wordmark">FOLLOW<span>THROUGH</span></span>
+  </div>
+  <nav class="tabs" role="tablist" aria-label="Sections">
+    <button type="button" role="tab" data-tab="live" aria-selected="true">Live run</button>
+    <button type="button" role="tab" data-tab="bench" aria-selected="false">Benchmark</button>
+    <button type="button" role="tab" data-tab="system" aria-selected="false">System</button>
+  </nav>
+  <div class="status">
+    <span id="mode-pill" class="pill">Connecting…</span>
+    <span id="model-pill" class="pill ghost">—</span>
+    <span id="version-pill" class="pill ghost">—</span>
+  </div>
+</header>
+
+<main>
+  <!-- ============ LIVE RUN ============ -->
+  <section id="tab-live" class="tab-panel" role="tabpanel">
+    <div class="layout">
+      <aside class="panel source">
+        <div class="panel-head">
+          <h2>Source</h2>
+          <div class="seg">
+            <button type="button" data-src="notes" aria-pressed="true">Granola</button>
+            <button type="button" data-src="paste" aria-pressed="false">Paste</button>
+          </div>
+        </div>
+        <div id="src-notes">
+          <div class="row">
+            <input id="note-filter" type="text" placeholder="Filter notes…" aria-label="Filter notes">
+            <button id="notes-refresh" class="icon-btn" type="button" title="Refresh notes" aria-label="Refresh notes">↻</button>
+          </div>
+          <ul id="notes" class="notes"></ul>
+        </div>
+        <div id="src-paste" hidden>
+          <label class="field">Title<input id="paste-title" type="text" placeholder="Acme renewal sync"></label>
+          <label class="field">Transcript<textarea id="paste-text" placeholder="Alex: I'll send the pricing proposal to Daniel Cho."></textarea></label>
+          <button id="load-sample" class="link" type="button">Load the demo call</button>
+        </div>
+        <button id="analyze" class="btn primary block" type="button" disabled>◆ Analyze · dry run</button>
+        <p class="hint">Reads your apps to match names. Sends nothing.</p>
+      </aside>
+
+      <section class="panel run">
+        <div class="panel-head">
+          <h2 id="run-title">Mission output</h2>
+          <span id="run-status" class="pill ghost">Idle</span>
+        </div>
+
+        <div id="empty" class="empty">
+          <div class="radar" aria-hidden="true"></div>
+          <strong>Pick a call to analyze</strong>
+          <span>Followthrough finds every commitment, matches people and records in your apps, and plans one action for each. You approve before anything is sent.</span>
+        </div>
+
+        <div id="progress" hidden>
+          <ol id="log" class="log" aria-live="polite"></ol>
+        </div>
+
+        <div id="result" hidden>
+          <div class="stats">
+            <div class="stat cyan"><b id="stat-commitments">0</b><span>Commitments</span></div>
+            <div class="stat violet"><b id="stat-actions">0</b><span>Actions</span></div>
+            <div class="stat amber"><b id="stat-questions">0</b><span>Questions</span></div>
+            <div class="stat method"><b id="stat-method">—</b><span>Extractor</span></div>
+          </div>
+          <div id="warnings"></div>
+
+          <h3>Planned actions <span id="actions-count" class="count">0</span></h3>
+          <div id="actions" class="cards"></div>
+
+          <div class="exec-bar">
+            <label class="pick-wrap"><input id="select-all" class="pick" type="checkbox"><span>Select all</span></label>
+            <span id="exec-note" class="exec-note"></span>
+            <button id="execute" class="btn danger" type="button" disabled>Execute</button>
+          </div>
+
+          <h3>Needs your input <span id="questions-count" class="count">0</span></h3>
+          <div id="questions" class="cards"></div>
+
+          <details class="run-log">
+            <summary>Run log</summary>
+            <ol id="result-log" class="log"></ol>
+          </details>
+          <p class="trace">Trace: <code id="trace"></code></p>
+        </div>
+      </section>
+    </div>
+  </section>
+
+  <!-- ============ BENCHMARK ============ -->
+  <section id="tab-bench" class="tab-panel" role="tabpanel" hidden>
+    <div class="panel">
+      <div class="panel-head"><h2>Benchmark · sample calls with gold labels</h2></div>
+      <p class="muted lead">Runs the 5 seeded fixtures against mock apps (nothing real is touched) and grades the side-effect log against gold labels the agent never sees.</p>
+      <div class="bench-controls">
+        <label class="toggle"><input id="bench-llm" type="checkbox" role="switch"><span>Use Groq extractor <small>slower, rate-limited</small></span></label>
+        <label class="toggle"><input id="bench-faults" type="checkbox" role="switch"><span>Inject faults <small>timeouts · 429s · lost responses</small></span></label>
+        <button id="bench-run" class="btn primary" type="button">▶ Run benchmark</button>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="panel">
+        <div class="panel-head"><h2>Scoreboard</h2></div>
+        <p id="bench-empty" class="muted">Run the benchmark to see results.</p>
+        <div id="bench-out" hidden>
+          <ol id="bench-log" class="log"></ol>
+          <p id="bench-summary" class="summary"></p>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Fixture</th><th>Verdict</th><th class="num">Score</th><th class="num">F1</th><th class="num">Entities</th><th class="num">Actions</th><th class="num">Safety</th><th>Notes</th></tr></thead>
+              <tbody id="board"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h2>History</h2></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>When</th><th>Version</th><th>Run</th><th class="num">Pass</th><th class="num">Mean</th></tr></thead>
+            <tbody id="history"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SYSTEM ============ -->
+  <section id="tab-system" class="tab-panel" role="tabpanel" hidden>
+    <div class="panel">
+      <div class="panel-head">
+        <h2>Connections</h2>
+        <button id="check-run" class="btn" type="button">↻ Run checks</button>
+      </div>
+      <p class="muted lead">Read-only checks against your real accounts.</p>
+      <div id="connections" class="conns"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-head"><h2>Autopilot</h2></div>
+      <div id="autopilot"><p class="muted">Loading…</p></div>
+    </div>
+    <div class="panel">
+      <div class="panel-head"><h2>Safety mode</h2><span id="mode-pill-2" class="pill">—</span></div>
+      <ol class="steps">
+        <li><b>Safe mode</b>: analyze calls and preview actions. Nothing is sent.</li>
+        <li><b>Armed</b>: approved actions (and autopilot) send real emails, create events, post to Slack and edit Airtable. Arm it with the <b>Act for real</b> switch in the Followthrough extension, or set <code>FOLLOWTHROUGH_MODE=real</code> in <code>.env</code> and restart.</li>
+        <li>Re-running the same call never repeats an action that already happened.</li>
+      </ol>
+    </div>
+  </section>
+</main>
+
+<dialog id="confirm">
+  <form method="dialog">
+    <h2>Send for real?</h2>
+    <p class="muted">This carries out <b id="confirm-count">0</b> action(s) in your real Gmail, Calendar, Slack and Airtable. Anything that already happened is skipped.</p>
+    <menu>
+      <button class="btn" value="cancel" autofocus>Cancel</button>
+      <button class="btn danger" value="go">Send for real</button>
+    </menu>
+  </form>
+</dialog>
+
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+<script src="/app.js"></script>
+</body>
+</html>

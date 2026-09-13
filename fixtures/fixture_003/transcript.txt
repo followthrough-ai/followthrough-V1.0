@@ -1,0 +1,2 @@
+Sam: One action item from the Acme call.
+Jordan: I'll email the security whitepaper to Priya.

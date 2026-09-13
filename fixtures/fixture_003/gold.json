@@ -1,0 +1,9 @@
+{
+  "fixture_id": "fixture_003",
+  "category": "ambiguous_entity",
+  "commitments": [
+    {"id": "g1", "description": "email the security whitepaper to Priya",
+     "expect_clarification": true,
+     "note": "Two plausible contacts (Priya Sharma, Priyanka Rao); acting on either without asking is a wrong-entity risk."}
+  ]
+}

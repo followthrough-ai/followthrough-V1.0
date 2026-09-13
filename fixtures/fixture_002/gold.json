@@ -1,0 +1,19 @@
+{
+  "fixture_id": "fixture_002",
+  "category": "four_apps",
+  "commitments": [
+    {"id": "g1", "description": "send the renewal summary to Daniel Cho",
+     "expected_action": {"app": "gmail", "action": "send_email",
+       "target": "daniel.cho@acme.com",
+       "parameters": {"recipient": "daniel.cho@acme.com"}}},
+    {"id": "g2", "description": "update the deal stage to Negotiation for the Acme record in Airtable",
+     "expected_action": {"app": "airtable", "action": "update_record",
+       "target": "recACME01"}},
+    {"id": "g3", "description": "schedule 10am Friday on the calendar pricing review",
+     "expected_action": {"app": "calendar", "action": "create_event",
+       "target": "friday 10am", "parameters": {"time": "friday 10am"}}},
+    {"id": "g4", "description": "post the renewal status in the Slack updates channel loop in Alex Kim",
+     "expected_action": {"app": "slack", "action": "send_message",
+       "target": "C001UPD", "parameters": {"channel": "C001UPD", "mention": "U100AK"}}}
+  ]
+}

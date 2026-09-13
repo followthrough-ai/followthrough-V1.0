@@ -1,0 +1,4 @@
+Sam: Thanks everyone for joining the Acme sync.
+Jordan: I'll email the pricing deck to Priya Sharma.
+Sam: Great. Let's put 3pm tomorrow on the calendar for the technical review.
+Jordan: Please post the launch update in the Slack updates channel and loop in Alex Kim.

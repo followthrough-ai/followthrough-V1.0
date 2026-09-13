@@ -1,0 +1,10 @@
+{
+  "fixture_id": "fixture_004",
+  "category": "negatives_and_duplicate_mentions",
+  "commitments": [
+    {"id": "g1", "description": "email the pricing deck to Priya Sharma",
+     "expected_action": {"app": "gmail", "action": "send_email",
+       "target": "priya.sharma@acme.com",
+       "parameters": {"recipient": "priya.sharma@acme.com"}}}
+  ]
+}

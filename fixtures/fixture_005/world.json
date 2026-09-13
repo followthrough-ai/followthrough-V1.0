@@ -1,0 +1,18 @@
+{
+  "gmail_contacts": [
+    {"name": "Priya Sharma", "email": "priya.sharma@acme.com"},
+    {"name": "Priyanka Rao", "email": "priyanka.rao@other.com"},
+    {"name": "Daniel Cho", "email": "daniel.cho@acme.com"}
+  ],
+  "slack_users": [
+    {"name": "Alex Kim", "id": "U100AK"},
+    {"name": "Daniel Cho", "id": "U200DC"}
+  ],
+  "slack_channels": [
+    {"name": "updates", "id": "C001UPD"},
+    {"name": "general", "id": "C000GEN"}
+  ],
+  "airtable_records": [
+    {"id": "recACME01", "fields": {"Name": "Acme", "Stage": "Discovery"}}
+  ]
+}

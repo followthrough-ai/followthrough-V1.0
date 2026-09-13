@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Followthrough</title>
+<link rel="stylesheet" href="popup.css">
+</head>
+<body>
+<div class="glow" aria-hidden="true"></div>
+
+<header class="top">
+  <div class="brand">
+    <svg viewBox="0 0 32 32" aria-hidden="true">
+      <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2ee6ff"/><stop offset="1" stop-color="#9f7dff"/></linearGradient></defs>
+      <path d="M16 2 28 9v14l-12 7L4 23V9z" fill="none" stroke="url(#g)" stroke-width="2"/>
+      <path d="m10 16.5 4 4 8-9" fill="none" stroke="url(#g)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span class="wordmark">FOLLOW<span>THROUGH</span></span>
+  </div>
+  <div class="top-right">
+    <span id="pill" class="pill">…</span>
+    <button id="gear" class="icon-btn" type="button" title="Settings" aria-label="Settings" hidden>⚙</button>
+  </div>
+</header>
+
+<main>
+  <!-- ===== engine offline ===== -->
+  <section id="view-offline" class="view" hidden>
+    <div class="hero">
+      <div class="orb off"></div>
+      <h1>Engine not running</h1>
+      <p>Followthrough works on your computer. Start the engine once and it will keep watching your meetings.</p>
+    </div>
+    <ol class="steps">
+      <li>Open the Followthrough folder in a terminal.</li>
+      <li>Run <code>python run.py engine</code><br><small>or install it to start with Windows: <code>engine\install-windows.ps1</code></small></li>
+      <li>Come back here.</li>
+    </ol>
+    <label class="field">Engine address<input id="engine-url" type="text" placeholder="http://127.0.0.1:8765"></label>
+    <button id="retry" class="btn primary block" type="button">↻ Try again</button>
+  </section>
+
+  <!-- ===== onboarding ===== -->
+  <section id="view-onboard" class="view" hidden>
+    <div class="progress"><span data-step="1" class="on"></span><span data-step="2"></span><span data-step="3"></span></div>
+
+    <div class="step" data-step="1">
+      <h1>Welcome</h1>
+      <p>Sign up once. Followthrough will act only on meetings you own.</p>
+      <label class="field">Your email<input id="ob-email" type="email" placeholder="you@company.com" autocomplete="email"></label>
+      <label class="field">Name <small>(optional)</small><input id="ob-name" type="text" placeholder="Alex"></label>
+      <p class="hint">Use the email your Granola account uses.</p>
+      <button class="btn primary block next" type="button">Continue →</button>
+    </div>
+
+    <div class="step" data-step="2" hidden>
+      <h1>Which apps may it use?</h1>
+      <p>Actions in unticked apps are skipped and shown to you instead.</p>
+      <div class="apps">
+        <label class="app" data-app="gmail"><input type="checkbox" value="gmail" checked><span class="app-icon">✉</span><span><b>Gmail</b><small>send follow-up emails</small></span></label>
+        <label class="app" data-app="calendar"><input type="checkbox" value="calendar" checked><span class="app-icon">📅</span><span><b>Google Calendar</b><small>book the meetings you agreed</small></span></label>
+        <label class="app" data-app="slack"><input type="checkbox" value="slack" checked><span class="app-icon">💬</span><span><b>Slack</b><small>post updates to your channel</small></span></label>
+        <label class="app" data-app="airtable"><input type="checkbox" value="airtable" checked><span class="app-icon">🗂</span><span><b>Airtable</b><small>update deal records</small></span></label>
+      </div>
+      <div class="row">
+        <button class="btn back" type="button">← Back</button>
+        <button class="btn primary next grow" type="button">Continue →</button>
+      </div>
+    </div>
+
+    <div class="step" data-step="3" hidden>
+      <h1>Turn on autopilot</h1>
+      <p>A few minutes after each meeting ends, Followthrough reads the transcript, finds your commitments and completes them in the allowed apps.</p>
+      <label class="switch-row">
+        <input id="ob-armed" type="checkbox" checked>
+        <span class="switch"></span>
+        <span><b>Act for real</b><small>Untick to preview only: you'll see what it would do, nothing is sent.</small></span>
+      </label>
+      <p class="warn">Real mode sends real emails, events, Slack posts and record updates. Anything ambiguous is asked, never guessed.</p>
+      <div class="row">
+        <button class="btn back" type="button">← Back</button>
+        <button id="ob-finish" class="btn primary grow" type="button">◆ Start autopilot</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== home ===== -->
+  <section id="view-home" class="view" hidden>
+    <div class="card status-card">
+      <div class="status-main">
+        <div id="orb" class="orb"></div>
+        <div>
+          <b id="ap-title">Autopilot on</b>
+          <small id="ap-sub">Watching your meetings</small>
+        </div>
+        <label class="switch-row compact" title="Pause / resume autopilot">
+          <input id="ap-toggle" type="checkbox">
+          <span class="switch"></span>
+        </label>
+      </div>
+      <div class="chips" id="chips"></div>
+      <div class="row">
+        <button id="run-now" class="btn grow" type="button">↻ Check now</button>
+        <button id="open-site" class="btn grow" type="button">Open dashboard ↗</button>
+      </div>
+    </div>
+
+    <h2>Recent meetings <span id="activity-count" class="count">0</span></h2>
+    <div id="activity" class="activity"></div>
+  </section>
+
+  <!-- ===== settings ===== -->
+  <section id="view-settings" class="view" hidden>
+    <h1>Settings</h1>
+    <label class="field">Email<input id="st-email" type="email"></label>
+    <label class="field">Name<input id="st-name" type="text"></label>
+    <h2>Allowed apps</h2>
+    <div class="apps compact" id="st-apps">
+      <label class="app" data-app="gmail"><input type="checkbox" value="gmail"><span class="app-icon">✉</span><span><b>Gmail</b></span></label>
+      <label class="app" data-app="calendar"><input type="checkbox" value="calendar"><span class="app-icon">📅</span><span><b>Calendar</b></span></label>
+      <label class="app" data-app="slack"><input type="checkbox" value="slack"><span class="app-icon">💬</span><span><b>Slack</b></span></label>
+      <label class="app" data-app="airtable"><input type="checkbox" value="airtable"><span class="app-icon">🗂</span><span><b>Airtable</b></span></label>
+    </div>
+    <h2>Autopilot</h2>
+    <label class="switch-row"><input id="st-armed" type="checkbox"><span class="switch"></span><span><b>Act for real</b><small>Off = preview only</small></span></label>
+    <label class="switch-row"><input id="st-mine" type="checkbox"><span class="switch"></span><span><b>Only my meetings</b><small>Skip notes owned by someone else</small></span></label>
+    <label class="field">Check every <small>(minutes)</small><input id="st-poll" type="number" min="1" max="60"></label>
+    <label class="field">Engine address<input id="st-url" type="text"></label>
+    <div class="row">
+      <button id="st-cancel" class="btn" type="button">Cancel</button>
+      <button id="st-save" class="btn primary grow" type="button">Save</button>
+    </div>
+  </section>
+</main>
+
+<div id="toast" class="toast" hidden></div>
+<script src="popup.js"></script>
+</body>
+</html>

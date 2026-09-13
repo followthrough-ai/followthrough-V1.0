@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Seeded world directory",
+  "type": "object",
+  "properties": {
+    "gmail_contacts": {"type": "array", "items": {"type": "object",
+      "required": ["name", "email"]}},
+    "slack_users": {"type": "array", "items": {"type": "object",
+      "required": ["name", "id"]}},
+    "slack_channels": {"type": "array", "items": {"type": "object",
+      "required": ["name", "id"]}},
+    "airtable_records": {"type": "array", "items": {"type": "object",
+      "required": ["id", "fields"]}}
+  }
+}

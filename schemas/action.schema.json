@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Recorded side effect",
+  "type": "object",
+  "required": ["action_id", "run_id", "fixture_id", "commitment_id", "app",
+               "action", "target", "parameters", "idempotency_key", "status"],
+  "properties": {
+    "action_id": {"type": "string"},
+    "run_id": {"type": "string"},
+    "fixture_id": {"type": "string"},
+    "commitment_id": {"type": "string"},
+    "app": {"enum": ["gmail", "calendar", "slack", "airtable"]},
+    "action": {"type": "string"},
+    "target": {"type": ["string", "null"]},
+    "parameters": {"type": "object"},
+    "idempotency_key": {"type": "string"},
+    "status": {"enum": ["applied", "failed", "skipped_duplicate"]}
+  }
+}

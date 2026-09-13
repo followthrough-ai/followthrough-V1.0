@@ -1,0 +1,13 @@
+{
+  "fixture_id": "fixture_005",
+  "category": "fault_injection_exactly_once",
+  "commitments": [
+    {"id": "g1", "description": "email the pricing deck to Priya Sharma",
+     "expected_action": {"app": "gmail", "action": "send_email",
+       "target": "priya.sharma@acme.com",
+       "parameters": {"recipient": "priya.sharma@acme.com"}}},
+    {"id": "g2", "description": "post the incident summary in the Slack updates channel loop in Alex Kim",
+     "expected_action": {"app": "slack", "action": "send_message",
+       "target": "C001UPD", "parameters": {"channel": "C001UPD", "mention": "U100AK"}}}
+  ]
+}

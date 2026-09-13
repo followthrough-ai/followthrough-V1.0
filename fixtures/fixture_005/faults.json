@@ -1,0 +1,6 @@
+[
+  {"match": {"app": "gmail", "action": "send_email"},
+   "faults": ["timeout", "rate_limit_429"]},
+  {"match": {"app": "slack", "action": "send_message"},
+   "faults": ["applied_but_lost"]}
+]
