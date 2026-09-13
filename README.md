@@ -23,28 +23,35 @@
 
 The Followthrough launch site shows the product end to end: a real call transcript turned into a sent email, a booked meeting, a Slack post and an Airtable update, plus how autopilot works, the benchmark results, safety features, integrations and install steps.
 
+## Product demo
+
+**▶ [Watch the demo on the live site](https://followthrough-ai.github.io/followthrough-V1.0/#demo)** · [Download the video (MP4, 45 MB)](Followthrough.mp4)
+
+A short walkthrough of Followthrough in action: a Granola meeting ends, autopilot extracts the commitments, and the email, calendar event, Slack post and Airtable update are completed, with ambiguous names turned into questions instead of guesses.
+
 ---
 
 ## Table of contents
 
 1. [Product is live](#product-is-live)
-2. [Overview](#overview)
-3. [Key capabilities](#key-capabilities)
-4. [Architecture](#architecture)
-5. [How a live run works](#how-a-live-run-works)
-6. [Reliability guarantees](#reliability-guarantees)
-7. [Live demo in 10 minutes](#live-demo-in-10-minutes)
-8. [Connecting your accounts](#connecting-your-accounts)
-9. [Using Followthrough](#using-followthrough)
-10. [Benchmark and evaluation](#benchmark-and-evaluation)
-11. [Web API reference](#web-api-reference)
-12. [Configuration reference](#configuration-reference)
-13. [Security and privacy](#security-and-privacy)
-14. [Observability](#observability)
-15. [Project structure](#project-structure)
-16. [Troubleshooting](#troubleshooting)
-17. [Roadmap](#roadmap)
-18. [Documentation](#documentation)
+2. [Product demo](#product-demo)
+3. [Overview](#overview)
+4. [Key capabilities](#key-capabilities)
+5. [Architecture](#architecture)
+6. [How a live run works](#how-a-live-run-works)
+7. [Reliability guarantees](#reliability-guarantees)
+8. [Live demo in 10 minutes](#live-demo-in-10-minutes)
+9. [Connecting your accounts](#connecting-your-accounts)
+10. [Using Followthrough](#using-followthrough)
+11. [Benchmark and evaluation](#benchmark-and-evaluation)
+12. [Web API reference](#web-api-reference)
+13. [Configuration reference](#configuration-reference)
+14. [Security and privacy](#security-and-privacy)
+15. [Observability](#observability)
+16. [Project structure](#project-structure)
+17. [Troubleshooting](#troubleshooting)
+18. [Roadmap](#roadmap)
+19. [Documentation](#documentation)
 
 ---
 
