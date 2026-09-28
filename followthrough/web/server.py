@@ -116,7 +116,8 @@ def _preview(job: Job, note_id: str | None, transcript: str | None) -> dict:
         source_id = "text_" + hashlib.sha1(transcript.strip().encode()).hexdigest()[:10]
     job.say("Connecting to Gmail, Calendar, Slack and Airtable")
     apps = build_real_suite()
-    planned = plan_live(source_id, transcript, apps, progress=job.say)
+    planned = plan_live(source_id, transcript, apps, progress=job.say,
+                        context={"sender": S.load()["profile"].get("name")})
     job.state = {"planned": planned, "apps": apps}
     view = _plan_view(planned)
     job.say(f"Done: {view['counts']['actions']} action(s) planned, "

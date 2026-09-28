@@ -187,7 +187,8 @@ class Autopilot:
         allowed = set(s["allowed_apps"])
         armed = S.is_armed(s)
         apps = build_real_suite()
-        planned = plan_live(nid, transcript, apps, progress=job.say)
+        planned = plan_live(nid, transcript, apps, progress=job.say,
+                            context={"meeting": note.get("title"), "sender": s["profile"].get("name")})
         plans = planned["plans"]
         allowed_ids = {p["commitment_id"] for p in plans if p["type"] == "action" and p["app"] in allowed}
         if armed and allowed_ids:

@@ -58,9 +58,11 @@ def _summary(results: list[dict]) -> list[dict]:
     return [{k: r.get(k) for k in ("commitment_id", "type", "status", "app", "action", "error")}
             for r in results]
 
-def plan_live(source_id: str, transcript: str, apps: dict, progress=None) -> dict:
+def plan_live(source_id: str, transcript: str, apps: dict, progress=None,
+              context: dict | None = None) -> dict:
     """Real mode, step 1: find commitments and plan actions. Only reads the apps
-    (to resolve people, channels and records); sends nothing."""
+    (to resolve people, channels and records); sends nothing. context
+    ({"meeting", "sender"}) only shapes the wording of emails, events and posts."""
     say = progress or (lambda msg: None)
     trace = Trace(source_id, agent_version=AGENT_VERSION)
     trace.log("ingest", source="live", chars=len(transcript))
@@ -75,7 +77,7 @@ def plan_live(source_id: str, transcript: str, apps: dict, progress=None) -> dic
     trace.log("entities_resolved", entities=entities)
 
     say("Planning one action per commitment")
-    plans = action_planner.plan(commitments, entities, apps)
+    plans = action_planner.plan(commitments, entities, apps, context)
     text_by_id = {c["id"]: c["text"] for c in commitments}
     for p in plans:
         p["commitment_text"] = text_by_id.get(p["commitment_id"], "")
