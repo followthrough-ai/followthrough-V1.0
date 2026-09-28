@@ -3,9 +3,7 @@ token.json. Scopes: gmail.send, contacts.readonly."""
 import base64, urllib.parse
 from email.mime.text import MIMEText
 from .base import http
-from ..config import GMAIL_API_URL
-
-PEOPLE_API_URL = "https://people.googleapis.com/v1"
+from ..config import GMAIL_API_URL, PEOPLE_API_URL
 
 class GmailIntegration:
     name = "gmail"

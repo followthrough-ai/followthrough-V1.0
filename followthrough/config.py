@@ -63,6 +63,7 @@ GRANOLA_API_URL = os.getenv("GRANOLA_API_URL", "https://public-api.granola.ai/v1
 GOOGLE_CREDENTIALS_JSON = _project_path(os.getenv("GOOGLE_CREDENTIALS_JSON", "credentials.json"))
 GOOGLE_TOKEN_JSON = _project_path(os.getenv("GOOGLE_TOKEN_JSON", "token.json"))
 GMAIL_API_URL = os.getenv("GMAIL_API_URL", "https://gmail.googleapis.com/gmail/v1")
+PEOPLE_API_URL = os.getenv("PEOPLE_API_URL", "https://people.googleapis.com/v1")
 GCAL_API_URL = os.getenv("GCAL_API_URL", "https://www.googleapis.com/calendar/v3")
 EVENT_MINUTES = int(os.getenv("FT_EVENT_MINUTES", "30"))
 
