@@ -30,7 +30,7 @@ def check_connections() -> list[dict]:
     def google():
         h = {"Authorization": f"Bearer {GoogleToken().access_token()}"}
         http("GET", f"{config.GCAL_API_URL}/calendars/primary/events?maxResults=1", h)
-        http("GET", "https://people.googleapis.com/v1/people:searchContacts?query=&readMask=names", h)
+        http("GET", f"{config.PEOPLE_API_URL}/people:searchContacts?query=&readMask=names", h)
         return "token valid; Calendar and Contacts reachable (Gmail send is checked on first email)"
 
     rows = []
