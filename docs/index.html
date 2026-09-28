@@ -3,13 +3,43 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Followthrough</title>
-<meta name="description" content="Followthrough reads your Granola meeting and completes every commitment: the email, the calendar invite, the Slack update, the deal stage. Exactly once, only in the apps you allow.">
-<meta property="og:title" content="Followthrough">
-<meta property="og:description" content="Every promise from the call, done before the next one.">
+<title>Followthrough – AI agent that completes meeting action items from Granola</title>
+<meta name="description" content="Open-source AI agent that turns Granola meeting commitments into sent emails, booked meetings, Slack updates and Airtable deal changes. Runs on your computer, asks when unsure, never acts twice.">
+<link rel="canonical" href="https://followthrough-ai.github.io/followthrough-V1.0/">
+<meta property="og:site_name" content="Followthrough">
+<meta property="og:title" content="Followthrough – every promise from the call, done before the next one">
+<meta property="og:description" content="Open-source AI agent that turns Granola meeting commitments into sent emails, booked meetings, Slack updates and CRM changes. Exactly once.">
 <meta property="og:type" content="website">
+<meta property="og:url" content="https://followthrough-ai.github.io/followthrough-V1.0/">
+<meta property="og:image" content="https://followthrough-ai.github.io/followthrough-V1.0/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Followthrough: every promise from the call, done before the next one. Gmail, Calendar, Slack, Airtable.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Followthrough – every promise from the call, done before the next one">
+<meta name="twitter:description" content="Open-source AI agent that turns Granola meeting commitments into completed work across Gmail, Calendar, Slack and Airtable.">
+<meta name="twitter:image" content="https://followthrough-ai.github.io/followthrough-V1.0/assets/og-image.png">
 <meta name="theme-color" content="#03050b">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2303050b'/%3E%3Cpath d='M16 3 27 9.5v13L16 29 5 22.5v-13z' fill='none' stroke='%232ee6ff' stroke-width='2'/%3E%3Cpath d='m10.5 16.5 3.8 3.8 7.2-8' fill='none' stroke='%232ee6ff' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Followthrough",
+  "description": "Open-source AI agent that turns Granola meeting commitments into completed work across Gmail, Google Calendar, Slack and Airtable, exactly once.",
+  "url": "https://followthrough-ai.github.io/followthrough-V1.0/",
+  "image": "https://followthrough-ai.github.io/followthrough-V1.0/assets/og-image.png",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Windows, macOS, Linux (Chrome or Edge)",
+  "softwareVersion": "1.0.0",
+  "license": "https://opensource.org/licenses/MIT",
+  "isAccessibleForFree": true,
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "downloadUrl": "https://followthrough-ai.github.io/followthrough-V1.0/downloads/followthrough-extension.zip",
+  "sameAs": "https://github.com/followthrough-ai/followthrough-V1.0"
+}
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap">
@@ -372,10 +402,10 @@ footer { margin-top: clamp(72px, 10vw, 128px); padding-block: 56px 40px; border-
         <div class="hero-side">
           <p>Followthrough reads your Granola meeting, finds what people committed to, and completes it: <strong>the email, the calendar invite, the Slack update, the deal stage.</strong> Exactly once, and only in the apps you allow.</p>
           <div class="cta-row">
-            <a class="btn primary" href="downloads/followthrough-extension.zip" download="followthrough-extension.zip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Install the extension</a>
-            <a class="btn" href="https://github.com/followthrough-ai/followthrough-V1.0"><svg aria-hidden="true"><use href="#gh"/></svg>View source</a>
+            <a class="btn primary" href="downloads/followthrough-extension.zip" download="followthrough-extension.zip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Download free</a>
+            <a class="btn" href="https://github.com/followthrough-ai/followthrough-V1.0/blob/main/extension/README.md">Setup guide</a>
           </div>
-          <p class="fine">Downloads a .zip · unzip, then Load unpacked in Chrome or Edge · needs the local engine (<a href="https://github.com/followthrough-ai/followthrough-V1.0/blob/main/extension/README.md">setup guide</a>)</p>
+          <p class="fine">Chrome or Edge extension + a small local engine (Python 3.10+). Needs a Granola Business or Enterprise plan for API access and a Groq key (free tier works). Starts in preview: nothing is sent until you say so.</p>
         </div>
       </div>
 
@@ -488,11 +518,11 @@ footer { margin-top: clamp(72px, 10vw, 128px); padding-block: 56px 40px; border-
         <p class="lede">A meeting ends, autopilot picks it up, and the email, invite, Slack post and deal update are done, with anything ambiguous asked instead of guessed.</p>
       </div>
       <div class="player">
-        <video controls preload="metadata" playsinline src="https://raw.githubusercontent.com/followthrough-ai/followthrough-V1.0/main/Followthrough.mp4">
-          Your browser can't play this video. <a href="https://github.com/followthrough-ai/followthrough-V1.0/raw/main/Followthrough.mp4">Download it instead</a>.
+        <video controls preload="none" playsinline width="1280" height="720" poster="assets/demo-poster.jpg" src="assets/followthrough-demo.mp4">
+          Your browser can't play this video. <a href="assets/followthrough-demo.mp4">Download it instead</a>.
         </video>
       </div>
-      <p class="player-note">Followthrough.mp4 · 45 MB · <a href="https://github.com/followthrough-ai/followthrough-V1.0/raw/main/Followthrough.mp4">download</a></p>
+      <p class="player-note">2 min · 4 MB · <a href="assets/followthrough-demo.mp4" download>download</a></p>
     </div>
   </section>
 
@@ -764,8 +794,8 @@ footer { margin-top: clamp(72px, 10vw, 128px); padding-block: 56px 40px; border-
           <h2>Bring your keys. Keep your data.</h2>
           <p class="lede">MIT licensed. Run it on your own machine with your own accounts, and read every line it runs.</p>
           <div class="cta-row">
-            <a class="btn primary" href="downloads/followthrough-extension.zip" download="followthrough-extension.zip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Install the extension</a>
-            <a class="btn" href="https://github.com/followthrough-ai/followthrough-V1.0/blob/main/docs/ARCHITECTURE.md">Read the architecture</a>
+            <a class="btn primary" href="downloads/followthrough-extension.zip" download="followthrough-extension.zip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Download the extension</a>
+            <a class="btn" href="https://github.com/followthrough-ai/followthrough-V1.0"><svg aria-hidden="true"><use href="#gh"/></svg>Star on GitHub</a>
           </div>
         </div>
         <div class="install">
@@ -793,6 +823,10 @@ python run.py engine</pre>
         <details>
           <summary>What do I need to run it?</summary>
           <p>Python 3.10 or newer, Chrome or Edge, a Granola Business or Enterprise plan for API access, and a Groq API key (the free tier works). Then connect the apps you want it to use.</p>
+        </details>
+        <details>
+          <summary>How do I install it?</summary>
+          <p>Start the engine with the four commands above. Then unzip the download, open <code>chrome://extensions</code> (or <code>edge://extensions</code>), turn on Developer mode, click Load unpacked and choose the <code>followthrough-extension</code> folder. Pin the icon and the popup walks you through the rest in three steps.</p>
         </details>
         <details>
           <summary>What happens if it isn't sure who someone is?</summary>
@@ -845,13 +879,14 @@ python run.py engine</pre>
         <ul>
           <li><a href="https://github.com/followthrough-ai/followthrough-V1.0">GitHub</a></li>
           <li><a href="https://github.com/followthrough-ai/followthrough-V1.0/issues">Report an issue</a></li>
+          <li><a href="https://github.com/followthrough-ai/followthrough-V1.0/issues/new?title=Feature%20request%3A%20">Request a feature</a></li>
           <li><a href="https://github.com/followthrough-ai/followthrough-V1.0/blob/main/LICENSE">MIT License</a></li>
         </ul>
       </div>
     </div>
     <div class="legal">
       <span>© 2026 followthrough-ai · MIT License</span>
-      <span>Built for the Multi-App AI Agent Hackathon</span>
+      <span>Runs on your computer · your keys, your data</span>
     </div>
   </div>
 </footer>

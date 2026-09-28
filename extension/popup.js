@@ -3,6 +3,7 @@
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const DEFAULT_ENGINE = "http://127.0.0.1:8765";
+const SETUP_GUIDE = "https://github.com/followthrough-ai/followthrough-V1.0/blob/main/extension/README.md";
 const APP_NAMES = { gmail: "Gmail", calendar: "Calendar", slack: "Slack", airtable: "Airtable" };
 const STATUS_ICON = { applied: "✅", skipped_duplicate: "⏭", failed: "❌", planned: "📝",
                       skipped_not_allowed: "🚫", clarification_requested: "❓" };
@@ -204,6 +205,7 @@ function init() {
     await chrome.storage.local.set({ engineUrl: url });
     refresh();
   });
+  $("#setup-guide").addEventListener("click", () => chrome.tabs.create({ url: SETUP_GUIDE }));
   $("#gear").addEventListener("click", openSettings);
   $("#st-cancel").addEventListener("click", () => show("home"));
   $("#st-save").addEventListener("click", saveSettings);

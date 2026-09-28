@@ -4,10 +4,14 @@ The extension is the main Followthrough product: sign up once, choose which apps
 
 ## Install (Chrome or Edge)
 
-1. **Start the engine** in the Followthrough folder:
-   ```powershell
+1. **Start the engine.** If you only downloaded the extension zip, get the engine first:
+   ```bash
+   git clone https://github.com/followthrough-ai/followthrough-V1.0
+   cd followthrough-V1.0
+   pip install groq google-auth-oauthlib
    python run.py engine
    ```
+   Already have the folder? Just run `python run.py engine` in it. Add your keys to `.env` (copy `.env.example`) before acting for real.
    To start it automatically when you sign in to Windows:
    ```powershell
    .\engine\install-windows.ps1          # remove with -Uninstall
@@ -15,7 +19,8 @@ The extension is the main Followthrough product: sign up once, choose which apps
 2. **Load the extension**
    - Chrome: `chrome://extensions` → turn on **Developer mode** → **Load unpacked** → choose the `extension` folder.
    - Edge: `edge://extensions` → **Developer mode** → **Load unpacked** → choose the `extension` folder.
-   - Or unzip `dist/followthrough-extension.zip` (created by `python run.py package-extension`) and load that folder.
+   - Downloaded the zip from the [launch site](https://followthrough-ai.github.io/followthrough-V1.0/)? Unzip it and choose the `followthrough-extension` folder inside.
+   - To build the zip yourself: `python run.py package-extension` (writes `dist/followthrough-extension.zip`; add `--site` to also refresh `docs/downloads/`).
 3. **Pin it** (puzzle-piece icon → pin) and click the Followthrough icon.
 
 ## First run

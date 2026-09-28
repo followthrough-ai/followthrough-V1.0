@@ -3,7 +3,7 @@
 
 Engine (for the browser extension — autopilot + website, no browser opened):
   python run.py engine [port]              # default port 8765; runs until stopped
-  python run.py package-extension          # zip the extension into dist/
+  python run.py package-extension [--site] # zip the extension into dist/ (--site: also docs/downloads/)
 
 Web UI:
   python run.py ui [port]                  # open the Followthrough website (default port 8765)
@@ -128,16 +128,24 @@ def main():
         else:
             serve(port, open_browser="--no-browser" not in sys.argv)
     elif cmd == "package-extension":
-        import zipfile
+        # Forward-slash paths inside one top-level folder, so the zip unpacks the
+        # same way on Windows, macOS and Linux. --site also refreshes the copy the
+        # launch site serves (docs/downloads/).
+        import shutil, zipfile
         from pathlib import Path
-        src = Path(__file__).resolve().parent / "extension"
-        out = Path(__file__).resolve().parent / "dist" / "followthrough-extension.zip"
+        root = Path(__file__).resolve().parent
+        src = root / "extension"
+        out = root / "dist" / "followthrough-extension.zip"
         out.parent.mkdir(exist_ok=True)
         with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
             for f in sorted(src.rglob("*")):
-                if f.is_file() and "__pycache__" not in f.parts:
-                    z.write(f, f.relative_to(src).as_posix())
+                if f.is_file() and "__pycache__" not in f.parts and f.name != ".DS_Store":
+                    z.write(f, "followthrough-extension/" + f.relative_to(src).as_posix())
         print(f"packaged {out} ({out.stat().st_size:,} bytes)")
+        if "--site" in sys.argv:
+            site = root / "docs" / "downloads" / out.name
+            shutil.copyfile(out, site)
+            print(f"copied to {site}")
     elif cmd == "check":
         sys.exit(_check())
     elif cmd == "notes":
