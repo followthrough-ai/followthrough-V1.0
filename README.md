@@ -413,7 +413,7 @@ Sam:  Sounds good. Thanks, talk soon.
 | Command | Purpose |
 |---|---|
 | `python run.py engine [port]` | Start the engine for the extension: autopilot + dashboard, no browser opened |
-| `python run.py package-extension` | Zip the extension into `dist/followthrough-extension.zip` |
+| `python run.py package-extension [--site]` | Zip the extension into `dist/followthrough-extension.zip` (`--site` also refreshes the launch-site download) |
 | `python run.py ui [port] [--no-browser]` | Start the web dashboard only (default port 8765) |
 | `python run.py check` | Test all five connections (read-only) |
 | `python run.py notes [count]` | List recent Granola notes and their ids |
